@@ -1,4 +1,4 @@
-const version = '0.2';
+const version = '0.2.1';
 
 (function () {
 	'use strict';
@@ -607,7 +607,7 @@ const version = '0.2';
 			/* Player wrapper */
 			#goodTube_playerWrapper {
 				border-radius: 12px;
-				background: transparent;
+				background: #000000;
 				position: absolute;
 				top: 0;
 				left: 0;
