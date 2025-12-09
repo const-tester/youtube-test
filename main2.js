@@ -1,4 +1,4 @@
-const version = '0.3.1';
+const version = '0.3';
 
 (function () {
 	'use strict';
@@ -322,7 +322,6 @@ const version = '0.3.1';
 	// Hide page elements
 	function goodTube_youtube_hidePageElements() {
 		// Hide ads
-		/*
 		let cssOutput = `
 			.ytd-search ytd-shelf-renderer,
 			ytd-reel-shelf-renderer,
@@ -335,14 +334,19 @@ const version = '0.3.1';
 			ytd-in-feed-ad-layout-renderer,
 			ytd-ad-slot-renderer,
 			ytd-statement-banner-renderer,
-			ytd-banner-promo-renderer-background ytd-ad-slot-renderer,
+			ytd-banner-promo-renderer-background
+			ytd-ad-slot-renderer,
 			ytd-in-feed-ad-layout-renderer,
 			ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts),
 			ytd-compact-video-renderer:has(.goodTube_hidden),
+			ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer)
+			.ytd-video-masthead-ad-v3-renderer,
 			div#root.style-scope.ytd-display-ad-renderer.yt-simple-endpoint,
 			div#sparkles-container.style-scope.ytd-promoted-sparkles-web-renderer,
 			div#main-container.style-scope.ytd-promoted-video-renderer,
+			div#player-ads.style-scope.ytd-watch-flexy,
 			#clarify-box,
+			ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
 
 			ytm-rich-shelf-renderer,
 			ytm-search ytm-shelf-renderer,
@@ -358,14 +362,16 @@ const version = '0.3.1';
 			ytm-in-feed-ad-layout-renderer,
 			ytm-ad-slot-renderer,
 			ytm-statement-banner-renderer,
-			ytm-banner-promo-renderer-background ytm-ad-slot-renderer,
+			ytm-banner-promo-renderer-background
+			ytm-ad-slot-renderer,
 			ytm-in-feed-ad-layout-renderer,
 			ytm-compact-video-renderer:has(.goodTube_hidden),
-			ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer) .ytm-video-masthead-ad-v3-renderer,
+			ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer)
+			.ytm-video-masthead-ad-v3-renderer,
 			div#root.style-scope.ytm-display-ad-renderer.yt-simple-endpoint,
 			div#sparkles-container.style-scope.ytm-promoted-sparkles-web-renderer,
 			div#main-container.style-scope.ytm-promoted-video-renderer,
-			
+			div#player-ads.style-scope.ytm-watch-flexy,
 			ytd-compact-movie-renderer,
 
 			yt-about-this-ad-renderer,
@@ -375,8 +381,10 @@ const version = '0.3.1';
 			statement-banner-style-type-compact,
 			ytm-promoted-sparkles-web-renderer,
 			tp-yt-iron-overlay-backdrop,
+			#masthead-ad,
 
-			#offer-module {
+			#offer-module
+			 {
 				display: none !important;
 			}
 
@@ -385,7 +393,6 @@ const version = '0.3.1';
 				display: block !important;
 			}
 		`;
-		 */
 
 		// Hide the main Youtube player
 		cssOutput += `
