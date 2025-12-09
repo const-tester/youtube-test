@@ -53,7 +53,7 @@
 		return getParams;
 	}
 
-  // Set a cookie
+	// Set a cookie
 	function goodTube_helper_setCookie(name, value, days = 399) {
 		// Force new cookie names, we had the path attribute wrong...sorry all this will reset your settings (22/10/2025)
 		name = name + '_new';
@@ -148,7 +148,6 @@
 			}
 		}
 	}
-  console.log('7');
 
 	// Set HTML using our CSP policy
 	function goodTube_helper_innerHTML(element, html) {
@@ -253,7 +252,6 @@
 		document.dispatchEvent(e);
 	}
 
-  console.log('8');
 
 	/* Global variables
 	------------------------------------------------------------------------------------------ */
@@ -272,6 +270,9 @@
 	// Are we in picture in picture?
 	let goodTube_pip = false;
 
+	// Are we syncing the main Youtube player?
+	let goodTube_syncingPlayer = false;
+
 	// A reference to the previous URL (used to detect when the page changes)
 	let goodTube_previousUrl = false;
 
@@ -288,7 +289,7 @@
 	let goodTube_playerIframeLoaded = false;
 
 	// Hold the playlist information
-	let goodTube_playlist = false;
+	let goodTube_playlist = [];
 	let goodTube_playlistIndex = 0;
 
 	// Is the "hide and mute ads" fallback active?
@@ -296,6 +297,62 @@
 
 	// Is the tab in focus?
 	let goodTube_tabInFocus = document.hasFocus();
+
+	// Are suggested videos enabled (sidebar)?
+	let goodTube_hideSuggestedVideos = goodTube_helper_getCookie('goodTube_hideSuggestedVideos');
+	if (!goodTube_hideSuggestedVideos) {
+		goodTube_helper_setCookie('goodTube_hideSuggestedVideos', 'false');
+		goodTube_hideSuggestedVideos = 'false';
+	}
+
+	// Are comments enabled?
+	let goodTube_hideComments = goodTube_helper_getCookie('goodTube_hideComments');
+	if (!goodTube_hideComments) {
+		goodTube_helper_setCookie('goodTube_hideComments', 'false');
+		goodTube_hideComments = 'false';
+	}
+
+	// Are AI summaries enabled?
+	let goodTube_hideAiSummaries = goodTube_helper_getCookie('goodTube_hideAiSummaries');
+	if (!goodTube_hideAiSummaries) {
+		goodTube_helper_setCookie('goodTube_hideAiSummaries', 'false');
+		goodTube_hideAiSummaries = 'false';
+	}
+
+	// Are members only videos enabled?
+	let goodTube_hideMembersOnlyVideos = goodTube_helper_getCookie('goodTube_hideMembersOnlyVideos');
+	if (!goodTube_hideMembersOnlyVideos) {
+		goodTube_helper_setCookie('goodTube_hideMembersOnlyVideos', 'false');
+		goodTube_hideMembersOnlyVideos = 'false';
+	}
+
+	// Always play videos from the start?
+	let goodTube_alwaysStart = goodTube_helper_getCookie('goodTube_alwaysStart');
+	if (!goodTube_alwaysStart) {
+		goodTube_helper_setCookie('goodTube_alwaysStart', 'false');
+		goodTube_alwaysStart = 'false';
+	}
+
+	// Use a black background for the video player?
+	let goodTube_blackBackground = goodTube_helper_getCookie('goodTube_blackBackground');
+	if (!goodTube_blackBackground) {
+		goodTube_helper_setCookie('goodTube_blackBackground', 'true');
+		goodTube_blackBackground = 'true';
+	}
+
+	// Enable instant pausing
+	let goodTube_instantPause = goodTube_helper_getCookie('goodTube_instantPause');
+	if (!goodTube_instantPause) {
+		goodTube_helper_setCookie('goodTube_instantPause', 'false');
+		goodTube_instantPause = 'false';
+	}
+
+	// Videos per row on the home page
+	let goodTube_videosPerRow = goodTube_helper_getCookie('goodTube_videosPerRow');
+	if (!goodTube_videosPerRow) {
+		goodTube_helper_setCookie('goodTube_videosPerRow', 'default');
+		goodTube_videosPerRow = 'default';
+	}
 
 	// Is autoplay turned on?
 	let goodTube_autoplay = goodTube_helper_getCookie('goodTube_autoplay');
@@ -313,13 +370,86 @@
 	// Fetch the GET params
 	let goodTube_getParams = goodTube_helper_setupGetParams();
 
-  console.log('9');
 
 	/* Youtube functions
 	------------------------------------------------------------------------------------------ */
 	// Hide page elements
 	function goodTube_youtube_hidePageElements() {
-    let cssOutput = '';
+		// Hide ads
+		let cssOutput = `
+			.ytd-search ytd-shelf-renderer,
+			ytd-reel-shelf-renderer,
+			ytd-merch-shelf-renderer,
+			ytd-action-companion-ad-renderer,
+			ytd-display-ad-renderer,
+
+			ytd-video-masthead-ad-advertiser-info-renderer,
+			ytd-video-masthead-ad-primary-video-renderer,
+			ytd-in-feed-ad-layout-renderer,
+			ytd-ad-slot-renderer,
+			ytd-statement-banner-renderer,
+			ytd-banner-promo-renderer-background
+			ytd-ad-slot-renderer,
+			ytd-in-feed-ad-layout-renderer,
+			ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts),
+			ytd-compact-video-renderer:has(.goodTube_hidden),
+			ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer)
+			.ytd-video-masthead-ad-v3-renderer,
+			div#root.style-scope.ytd-display-ad-renderer.yt-simple-endpoint,
+			div#sparkles-container.style-scope.ytd-promoted-sparkles-web-renderer,
+			div#main-container.style-scope.ytd-promoted-video-renderer,
+			div#player-ads.style-scope.ytd-watch-flexy,
+			#clarify-box,
+			ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
+
+			ytm-rich-shelf-renderer,
+			ytm-search ytm-shelf-renderer,
+			ytm-button-renderer.icon-avatar_logged_out,
+			ytm-companion-slot,
+			ytm-reel-shelf-renderer,
+			ytm-merch-shelf-renderer,
+			ytm-action-companion-ad-renderer,
+			ytm-display-ad-renderer,
+			ytm-rich-section-renderer,
+			ytm-video-masthead-ad-advertiser-info-renderer,
+			ytm-video-masthead-ad-primary-video-renderer,
+			ytm-in-feed-ad-layout-renderer,
+			ytm-ad-slot-renderer,
+			ytm-statement-banner-renderer,
+			ytm-banner-promo-renderer-background
+			ytm-ad-slot-renderer,
+			ytm-in-feed-ad-layout-renderer,
+			ytm-compact-video-renderer:has(.goodTube_hidden),
+			ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer)
+			.ytm-video-masthead-ad-v3-renderer,
+			div#root.style-scope.ytm-display-ad-renderer.yt-simple-endpoint,
+			div#sparkles-container.style-scope.ytm-promoted-sparkles-web-renderer,
+			div#main-container.style-scope.ytm-promoted-video-renderer,
+			div#player-ads.style-scope.ytm-watch-flexy,
+			ytd-compact-movie-renderer,
+
+			yt-about-this-ad-renderer,
+			masthead-ad,
+			ad-slot-renderer,
+			yt-mealbar-promo-renderer,
+			statement-banner-style-type-compact,
+			ytm-promoted-sparkles-web-renderer,
+			tp-yt-iron-overlay-backdrop,
+			#masthead-ad,
+
+			#offer-module
+			 {
+				display: none !important;
+			}
+
+			.style-scope[page-subtype='channels'] ytd-shelf-renderer,
+			.style-scope[page-subtype='channels'] ytm-shelf-renderer {
+				display: block !important;
+			}
+		`;
+
+		// Debug message
+		console.log('[GoodTube] Ads removed');
 
 		// Hide the main Youtube player
 		cssOutput += `
@@ -337,10 +467,96 @@
 			}
 		`;
 
+
+		// Hide suggested videos if they're not enabled
+		if (goodTube_hideSuggestedVideos === 'true') {
+			cssOutput += `
+				/* Hide suggested videos */
+				ytd-watch-flexy #secondary #related {
+					display: none !important;
+				}
+
+				/* Hide full sidebar if not playlist */
+				ytd-watch-flexy #secondary:not(:has(ytd-playlist-panel-video-renderer)) {
+					display: none !important;
+				}
+			`;
+
+			// Debug message
+			console.log('[GoodTube] Suggested videos removed');
+		}
+
+		// Hide comments if they're not enabled
+		if (goodTube_hideComments === 'true') {
+			cssOutput += `
+				ytd-item-section-renderer.ytd-comments,
+				#comments-button,
+				#shorts-panel-container ytd-engagement-panel-section-list-renderer {
+					display: none !important;
+				}
+			`;
+
+			// Debug message
+			console.log('[GoodTube] Comments removed');
+		}
+
+		// Hide AI summaries if they're not enabled
+		if (goodTube_hideAiSummaries === 'true') {
+			cssOutput += `
+				ytd-expandable-metadata-renderer[has-video-summary] {
+					display: none !important;
+				}
+			`;
+
+			// Debug message
+			console.log('[GoodTube] AI summaries removed');
+		}
+
+		// Hide members only videos if they're not enabled
+		if (goodTube_hideMembersOnlyVideos === 'true') {
+			// Debug message
+			console.log('[GoodTube] Members only videos removed');
+		}
+
+		// Videos per row on the home page (check if default, also make sure it's a number)
+		if (goodTube_videosPerRow !== 'default' && goodTube_videosPerRow == parseFloat(goodTube_videosPerRow)) {
+			// Debug message
+			console.log('[GoodTube] Videos per row on the home page set to ' + goodTube_videosPerRow);
+
+			let fixedWidthPercentage = (100 / parseFloat(goodTube_videosPerRow)) + '%';
+
+			cssOutput += `
+				ytd-rich-item-renderer[rendered-from-rich-grid] {
+					width: calc(` + fixedWidthPercentage + ` - ((var(--ytd-rich-grid-item-margin) / 2)) / ` + parseFloat(goodTube_videosPerRow - 1) + ` * ` + (parseFloat(goodTube_videosPerRow - 1) * 2) + ` ) !important;
+					width: calc(` + fixedWidthPercentage + ` - ((var(--ytd-rich-grid-item-margin) / 2)) / ` + parseFloat(goodTube_videosPerRow - 1) + ` * ` + (parseFloat(goodTube_videosPerRow - 1) * 2) + ` ) !important;
+					margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+					margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+				}
+
+				#contents.ytd-rich-grid-renderer {
+					padding-right: 24px !important;
+					box-sizing: border-box !important;
+				}
+			`;
+		}
+
 		// Add the styles to the page
 		let style = document.createElement('style');
 		style.textContent = cssOutput;
 		document.head.appendChild(style);
+	}
+
+	// Hide members only videos
+	function goodTube_youtube_hideMembersOnlyVideos() {
+		let videos = document.querySelectorAll('ytd-rich-item-renderer:not(.goodTube_checked)');
+		videos.forEach((element) => {
+			if (element.innerHTML.toLowerCase().indexOf('members only') !== -1) {
+				goodTube_helper_hideElement(element);
+			}
+
+			// Mark this element as checked to save on resources
+			element.classList.add('goodTube_checked');
+		});
 	}
 
 	// Support timestamp links in comments
@@ -375,18 +591,6 @@
 	// Mute and pause all Youtube videos
 	let goodTube_youtube_pauseMuteVideos_timeout = setTimeout(() => {}, 0);
 	function goodTube_youtube_pauseMuteVideos() {
-		// If we're viewing a short
-		if (window.location.href.indexOf('/shorts') !== -1) {
-			// Clear timeout first to solve memory leak issues
-			clearTimeout(goodTube_youtube_pauseMuteVideos_timeout);
-
-			// Loop this function
-			goodTube_youtube_pauseMuteVideos_timeout = setTimeout(goodTube_youtube_pauseMuteVideos, 100);
-
-			// Don't pause or mute videos
-			return;
-		}
-
 		// Pause and mute all HTML videos on the page
 		let youtubeVideos = document.querySelectorAll('video');
 		youtubeVideos.forEach((video) => {
@@ -404,7 +608,7 @@
 			else {
 				if (
 					!video.paused &&
-					video.closest('#movie_player')
+					(!goodTube_syncingPlayer && video.closest('#movie_player'))
 					&&
 					!video.closest('#inline_player')
 				) {
@@ -439,7 +643,6 @@
 		// Loop this function
 		goodTube_youtube_pauseMuteVideos_timeout = setTimeout(goodTube_youtube_pauseMuteVideos, 100);
 	}
-  console.log('10');
 
 	// Turn off autoplay
 	function goodTube_youtube_turnOffAutoplay() {
@@ -514,7 +717,6 @@
 			variableElement.style.removeProperty("--ytd-watch-flexy-height-ratio");
 		}
 	}
-  console.log('11');
 
 
 	/* Player functions
@@ -542,13 +744,19 @@
 			return;
 		}
 
+		// Use a black background for the video player? (This is a setting)
+		let backgroundColor = 'transparent';
+		if (goodTube_blackBackground === 'true') {
+			backgroundColor = '#000000';
+		}
+
 		// Add CSS styles for the player
 		let style = document.createElement('style');
 		style.textContent = `
 			/* Player wrapper */
 			#goodTube_playerWrapper {
 				border-radius: 12px;
-				background: transparent;
+				background: ` + backgroundColor + `;
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -585,7 +793,7 @@
 
 		// Add video iframe embed (via proxy iframe)
 		let proxyIframe = document.createElement('iframe');
-		proxyIframe.src = 'https://wikipedia.org/wiki/Bruce_Lee?goodTubeProxy=1';
+		// proxyIframe.src = 'https://wikipedia.org/wiki/Bruce_Lee?goodTubeProxy=1';
 		proxyIframe.setAttribute('width', '100%');
 		proxyIframe.setAttribute('height', '100%');
 		proxyIframe.setAttribute('frameborder', '0');
@@ -595,6 +803,9 @@
 		proxyIframe.setAttribute('allowfullscreen', true);
 		proxyIframe.style.display = 'none';
 		playerWrapper.appendChild(proxyIframe);
+
+		// We need to use this method so it doesn't mess with the browser history
+		proxyIframe.contentWindow.location.replace('https://wikipedia.org/wiki/Bruce_Lee?goodTubeProxy=1');
 
 		// Expose these globally
 		goodTube_playerWrapper = playerWrapper;
@@ -660,7 +871,6 @@
 			}
 		}
 	}
-  console.log('12');
 
 	// Populate the playlist info
 	function goodTube_player_populatePlaylistInfo() {
@@ -743,9 +953,15 @@
 			return;
 		}
 
-
 		// Setup the starting time
 		let startTime = 0;
+
+		// Include the startime time from query params (if enabled)
+		if (goodTube_alwaysStart === 'false') {
+			if (typeof goodTube_getParams['t'] !== 'undefined') {
+				startTime = parseFloat(goodTube_getParams['t'].replace('s', ''));
+			}
+		}
 
 		// If we're loading for the first time
 		if (goodTube_firstLoad) {
@@ -762,7 +978,7 @@
 			}
 
 			// Set the video source
-			goodTube_player.contentWindow.postMessage('goodTube_src_https://www.youtube.com/embed/' + goodTube_getParams['v'] + '?goodTubeEmbed=1&autoplay=1&goodTube_playlist=' + playlist + '&goodTube_autoplay=' + goodTube_autoplay + '&goodTube_playbackSpeed=' + goodTube_playbackSpeed + '&goodTube_hideInfoCards=' + 'false' + '&goodTube_hideEndScreen=' + 'false' + '&goodTube_instantPause=' + 'false' + startTimeParam, '*');
+			goodTube_player.contentWindow.postMessage('goodTube_src_https://www.youtube.com/embed/' + goodTube_getParams['v'] + '?goodTubeEmbed=1&autoplay=1&goodTube_autoplay=' + goodTube_autoplay + '&goodTube_playbackSpeed=' + goodTube_playbackSpeed + '&goodTube_hideInfoCards=' + 'false' + '&goodTube_hideEndScreen=' + 'false' + '&goodTube_instantPause=' + goodTube_instantPause + startTimeParam, '*');
 
 			// Indicate we've completed the first load
 			goodTube_firstLoad = false;
@@ -770,11 +986,13 @@
 		// Otherwise, for all other loads
 		else {
 			// Load the video via the iframe api
-			goodTube_player.contentWindow.postMessage('goodTube_load_' + goodTube_getParams['v'] + '|||' + startTime + '|||' + playlist, '*');
+			goodTube_player.contentWindow.postMessage('goodTube_load_' + goodTube_getParams['v'] + '|||' + startTime, '*');
 		}
 
 		// Sync the starting time
-    goodTube_player_syncStartingTime();
+		if (goodTube_alwaysStart === 'false') {
+			goodTube_player_syncStartingTime();
+		}
 
 		// Play the video (this solves some edge cases in Firefox)
 		if (navigator.userAgent.toLowerCase().indexOf('firefox') !== -1) {
@@ -927,6 +1145,20 @@
 					goodTube_page_api.playVideo();
 				}, 100);
 			}
+		}
+	}
+
+	// Show or hide the previous button
+	function goodTube_player_showHidePrevButton() {
+		// If we're viewing a playlist
+		if (goodTube_playlist.length > 0) {
+			// Enable the previous button
+			goodTube_player.contentWindow.postMessage('goodTube_prevButton_true', '*');
+		}
+		// Otherwise, we're not viewing a playlist
+		else {
+			// Disable the previous button
+			goodTube_player.contentWindow.postMessage('goodTube_prevButton_false', '*');
 		}
 	}
 
@@ -1345,16 +1577,7 @@
 	------------------------------------------------------------------------------------------ */
 	// Play the next video
 	function goodTube_nav_next() {
-		// // Re fetch the page API
-		// goodTube_page_api = document.getElementById('movie_player');
-
-		// // Make sure it exists
-		// if (goodTube_page_api && typeof goodTube_page_api.nextVideo === 'function') {
-		// 	// Play the previous video
-		// 	goodTube_page_api.nextVideo();
-		// }
-
-		// Let's try this, see if we can evade detection better
+		// Go to the next video using the keyboard shortcut (evades detection)
 		goodTube_helper_shortcut('next');
 
 		// Debug message
@@ -1363,24 +1586,25 @@
 
 	// Play the previous video
 	function goodTube_nav_prev() {
-		// // Re fetch the page API
-		// goodTube_page_api = document.getElementById('movie_player');
+		// If we're viewing a playlist, and on the first item, go to the start of the track
+		if (goodTube_playlist.length > 0 && goodTube_playlistIndex === 0) {
+			// Go the the start of the video
+			goodTube_player.contentWindow.postMessage('goodTube_skipTo_0|||' + goodTube_getParams['v'], '*');
 
-		// // Make sure it exists
-		// if (goodTube_page_api && typeof goodTube_page_api.previousVideo === 'function') {
-		// 	// Play the previous video
-		// 	goodTube_page_api.previousVideo();
-		// }
+			// Debug message
+			console.log('[GoodTube] Restarting video...');
+		}
+		// Otherwise,
+		else {
+			// Go to the previous video using the keyboard shortcut (evades detection)
+			goodTube_helper_shortcut('previous');
 
-		// Let's try this, see if we can evade detection better
-		goodTube_helper_shortcut('previous');
-
-		// Debug message
-		console.log('[GoodTube] Playing previous video...');
+			// Debug message
+			console.log('[GoodTube] Playing previous video...');
+		}
 	}
 
 	// Video has ended
-	let goodTube_nav_videoEnded_timeout = setTimeout(() => {}, 0);
 	function goodTube_nav_videoEnded() {
 		// If autoplay is enabled
 		if (goodTube_autoplay === 'true') {
@@ -1388,19 +1612,7 @@
 			goodTube_nav_next();
 		}
 		// Otherwise, if we're viewing a playliust
-		else if (goodTube_playlist) {
-			// Make sure the playlist info exists
-			if (!goodTube_playlist) {
-				// Clear timeout first to solve memory leak issues
-				clearTimeout(goodTube_nav_videoEnded_timeout);
-
-				// Try again
-				goodTube_nav_videoEnded_timeout = setTimeout(goodTube_nav_videoEnded, 100);
-
-				// Don't do anything else
-				return;
-			}
-
+		else if (goodTube_playlist.length > 0) {
 			// If we're not on the last video
 			if (goodTube_playlistIndex < (goodTube_playlist.length - 1)) {
 				// Play the next video
@@ -1420,7 +1632,7 @@
 		}
 
 		// Otherwise, if we're viewing a playlist
-		else if (goodTube_playlist) {
+		else if (goodTube_playlist.length > 0) {
 			// Hide the end screen
 			hideEndScreen = true;
 
@@ -1699,8 +1911,30 @@
 			// AND we've not already synced to this point (this stops it continuing to sync when ended for no reason, we also need to round it down as it seems to be unreliable)
 			// AND ads are not showing (we don't want to touch the the time when ads are playing, this triggers detection)
 			if (youtubeVideoElement && Math.floor(youtubeVideoElement.currentTime) !== Math.floor(syncTime) && !goodTube_helper_adsShowing()) {
-				// Seek to the sync time
-				goodTube_page_api.seekTo(syncTime);
+				// Set a variable to indicate we're syncing the player (this stops the automatic pausing of all videos)
+				goodTube_syncingPlayer = true;
+
+				// Play the video via the page API (this is the only reliable way)
+				goodTube_page_api.playVideo();
+
+				// Sync the current time using the page API - 500ms (this is the only reliable way)
+				goodTube_page_api.seekTo((syncTime - .5));
+
+				// Then mute the video via the page API (this helps to prevent audio flashes)
+				goodTube_page_api.mute();
+				goodTube_page_api.setVolume(0);
+
+				// Then mute the video via HTML (playing it unmutes it for some reason)
+				youtubeVideoElement.volume = 0;
+				youtubeVideoElement.muted = true;
+
+				// Clear timeout first to solve memory leak issues
+				clearTimeout(goodTube_receiveMessage_timeout);
+
+				// After 1000ms stop syncing (and let the pause actions handle the pausing)
+				goodTube_receiveMessage_timeout = setTimeout(() => {
+					goodTube_syncingPlayer = false;
+				}, 1000);
 			}
 		}
 
@@ -1830,6 +2064,9 @@
 			// Get the playlist info
 			goodTube_player_populatePlaylistInfo();
 
+			// Show or hide the previous button
+			goodTube_player_showHidePrevButton();
+
 			// Show or hide the end screen (based on autoplay, not the setting)
 			goodTube_nav_showHideEndScreen();
 
@@ -1856,6 +2093,11 @@
 			// Stop the video (this solves some weird edge case where the video can be playing in the background)
 			goodTube_player.contentWindow.postMessage('goodTube_stopVideo', '*');
 		}
+
+		// Hide members only videos if they're not enabled
+		if (goodTube_hideMembersOnlyVideos === 'true') {
+			goodTube_youtube_hideMembersOnlyVideos();
+		}
 	}
 
 	// Init menu
@@ -1865,6 +2107,74 @@
 
 		// Add the menu container to the page
 		document.body.appendChild(menuContainer);
+
+		let hideSuggestedVideos = '';
+		if (goodTube_hideSuggestedVideos === 'true') {
+			hideSuggestedVideos = ' checked';
+		}
+
+		let hideComments = '';
+		if (goodTube_hideComments === 'true') {
+			hideComments = ' checked';
+		}
+
+		let hideAiSummaries = '';
+		if (goodTube_hideAiSummaries === 'true') {
+			hideAiSummaries = ' checked';
+		}
+
+		let hideMembersOnlyVideos = '';
+		if (goodTube_hideMembersOnlyVideos === 'true') {
+			hideMembersOnlyVideos = ' checked';
+		}
+
+		let alwaysStart = '';
+		if (goodTube_alwaysStart === 'true') {
+			alwaysStart = ' checked';
+		}
+
+		let blackBackground = '';
+		if (goodTube_blackBackground === 'true') {
+			blackBackground = ' checked';
+		}
+
+		let instantPause = '';
+		if (goodTube_instantPause === 'true') {
+			instantPause = ' checked';
+		}
+
+		let videosPerRow_default = '';
+		let videosPerRow_2 = '';
+		let videosPerRow_3 = '';
+		let videosPerRow_4 = '';
+		let videosPerRow_5 = '';
+		let videosPerRow_6 = '';
+		let videosPerRow_7 = '';
+		let videosPerRow_8 = '';
+		if (videosPerRow_default === 'default') {
+			videosPerRow_default = ' selected';
+		}
+		else if (goodTube_videosPerRow === '2') {
+			videosPerRow_2 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '3') {
+			videosPerRow_3 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '4') {
+			videosPerRow_4 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '5') {
+			videosPerRow_5 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '6') {
+			videosPerRow_6 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '7') {
+			videosPerRow_7 = ' selected';
+		}
+		else if (goodTube_videosPerRow === '8') {
+			videosPerRow_8 = ' selected';
+		}
 
 		// Add content to the menu container
 		goodTube_helper_innerHTML(menuContainer, `
@@ -1887,8 +2197,130 @@
 					<div class='goodTube_title'>Settings</div>
 					<div class='goodTube_content'>
 
+							<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideInfoCards' name='goodTube_option_hideInfoCards' id='goodTube_option_hideInfoCards'`+ hideInfoCards + `>
+							<label for='goodTube_option_hideInfoCards'>Hide info cards from videos</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideEndScreen' name='goodTube_option_hideEndScreen' id='goodTube_option_hideEndScreen'`+ hideEndScreen + `>
+							<label for='goodTube_option_hideEndScreen'>Hide end screen suggested videos</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideSuggestedVideos' name='goodTube_option_hideSuggestedVideos' id='goodTube_option_hideSuggestedVideos'`+ hideSuggestedVideos + `>
+							<label for='goodTube_option_hideSuggestedVideos'>Hide sidebar suggested videos</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideComments' name='goodTube_option_hideComments' id='goodTube_option_hideComments'`+ hideComments + `>
+							<label for='goodTube_option_hideComments'>Hide comments</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideAiSummaries' name='goodTube_option_hideAiSummaries' id='goodTube_option_hideAiSummaries'`+ hideAiSummaries + `>
+							<label for='goodTube_option_hideAiSummaries'>Hide AI summaries</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_hideMembersOnlyVideos' name='goodTube_option_hideMembersOnlyVideos' id='goodTube_option_hideMembersOnlyVideos'`+ hideMembersOnlyVideos + `>
+							<label for='goodTube_option_hideMembersOnlyVideos'>Hide members only videos (paid channel restricted content)</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_alwaysStart' name='goodTube_option_alwaysStart' id='goodTube_option_alwaysStart'`+ alwaysStart + `>
+							<label for='goodTube_option_alwaysStart'>Always play videos from the start</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_blackBackground' name='goodTube_option_blackBackground' id='goodTube_option_blackBackground'`+ blackBackground + `>
+							<label for='goodTube_option_blackBackground'>Use a black background for the video player</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<input type='checkbox' class='goodTube_option_instantPause' name='goodTube_option_instantPause' id='goodTube_option_instantPause'`+ instantPause + `>
+							<label for='goodTube_option_instantPause'>Enable instant pausing (this disables holding "space", "k" or "left mouse button" for 2x speed)</label>
+						</div> <!-- .goodTube_setting -->
+
+						<div class='goodTube_setting'>
+							<select class='goodTube_option_videosPerRow' name='goodTube_option_videosPerRow' id='goodTube_option_videosPerRow'>
+								<option` + videosPerRow_default + `>Default</option>
+								<option` + videosPerRow_2 + `>2</option>
+								<option` + videosPerRow_3 + `>3</option>
+								<option` + videosPerRow_4 + `>4</option>
+								<option` + videosPerRow_5 + `>5</option>
+								<option` + videosPerRow_6 + `>6</option>
+								<option` + videosPerRow_7 + `>7</option>
+								<option` + videosPerRow_8 + `>8</option>
+							</select>
+							<label for='goodTube_option_videosPerRow'>Videos per row on the home page</label>
+						</div> <!-- .goodTube_setting -->
+
 						<button class='goodTube_button' id='goodTube_button_saveSettings'>Save and refresh</button>
 					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>Make a donation <span class='goodTube_heart'>&#9829;</span></div>
+					<div class='goodTube_content'>
+						<div class='goodTube_donation'>
+							<div class="goodTube_text">
+								<strong>This adblocker is 100% free to use and always will be.<br>
+								It has helped over 185,000 people remove the unbearable ads from Youtube.</strong><br>
+								<br>
+								This project has been made entirely by myself, as just one developer. Countless hours and late nights have gone into making this and I continue to work on updating and maintaining the project regularly. I remain dedicated to ensuring this solution continues to work for everyone (despite Youtube's best efforts to stop adblockers).<br>
+								<br>
+								Donations help to keep this project going and support the wider community who use it. If you would like to say thank you and can give something back, it would be greatly appreciated.
+							</div>
+							<a href='https://tiptopjar.com/goodtube' target='_blank' rel='nofollow' class='goodTube_button'>Donate now</a>
+						</div> <!-- .goodTube_donation -->
+					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>FAQs</div>
+					<div class='goodTube_content'>
+						<div class='goodTube_text'>
+							<strong>How can I share this with friends?</strong><br>
+							You can send them <a href='https://github.com/goodtube4u/goodtube' target='_blank'>this link</a>. It has all of the install instructions.<br>
+							<br>
+							<strong>Do I need to manually update this?</strong><br>
+							Nope, updates are pushed to you automatically so you don't have to do anything to use the latest version.<br>
+							<br>
+							<strong>I'm seeing a black square with no video</strong><br>
+							Try uninstalling both Tampermonkey and GoodTube and then reinstalling them. Most of the time this will resolve the issue. It's caused by a known bug in Chrome browsers, which hopefully they fix soon. If that doesn't work, you may have a conflicting extension. Try turning off your other extensions for a second, see if that works. Then turn them back on one at a time until you work out which one is causing the problem.<br>
+							<br>
+							<strong>Playlists skip to the next video every few seconds</strong><br>
+							This is usually caused by another adblocker which Youtube is detecting. To fix this problem, first disable all of your other adblockers (for Youtube only, you can leave them on for other websites). Then clear your cookies and cache (this is important). Once that's done, refresh Youtube and the problem should be fixed.<br>
+							<br>
+							<strong>I can't use the miniplayer</strong><br>
+							The Youtube miniplayer is not supported. Instead this uses "Picture in Picture" mode, which is the new standard for the web. Unfortunately Firefox does not support the Picture in Picture API, so the button is disabled in Firefox until they decide to include this feature.<br>
+							<br>
+							<strong>Transcripts are not working</strong><br>
+							Unfortunately transcripts are currently not supported. I'm working on this, hang tight. Hopefully these will be added soon!<br>
+							<br>
+							<strong>Is this compatible with other Youtube extensions?</strong><br>
+							Short answer - probably not. This heavily modifies how Youtube works in order to block ads. A key part of this is replacing the default Youtube player with their "embedded" player. This means that unless your extension also works for embedded Youtube videos (like where you view a Youtube video on another website), it generally won't be compatible. Unfortunately there's not much I can do to support these extensions as a result. Honestly though - you probably never needed them anyway, just play the video and be happy.<br>
+							<br>
+							<strong>I'm having a different problem</strong><br>
+							If you're having a different issue, most of the time you will find it's caused by a conflicting extension you have installed. The first thing to do is turn off all other extensions you have installed. Leave only Tampermonkey and GoodTube enabled. Then refresh Youtube, check if the problem is fixed. If it is, then you know one of them is causing the issue. Turn your other extensions back on back on one at a time until you find the problem.
+						</div>
+					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>Report an issue</div>
+					<div class='goodTube_content'>
+						<div class='goodTube_text goodTube_successText'>Your message has been sent successfully.</div>
+						<form class='goodTube_report' onSubmit='javascript:;'>
+							<div class='goodTube_text'>
+								I am dedicated to helping every single person get this working. Everyone is important and if you have any problems at all, please let me know. I will respond and do my best to help!<br>
+								<br>
+								<i>* Please read the FAQs above before reporting an issue.</i>
+							</div>
+							<input class='goodTube_reportEmail' type='email' placeholder='Email address' required>
+							<textarea class='goodTube_reportText' placeholder='Enter your message here...\r\rPlease note - most reported issues are caused by a conflicting extension. Please first try turning off all of your other extensions. Refresh Youtube, check if the problem is fixed. If it is, then you know something is conflicting. Turn your other extensions back on one at a time until you find the cause. Please try this first before reporting an issue!' required></textarea>
+							<input type='submit' class='goodTube_button' id='goodTube_button_submitReport' value='Submit'>
+						</form> <!-- .goodTube_report -->
+					</div> <!-- .goodTube_content -->
+
 
 				</div> <!-- .goodTube_modal_inner -->
 			</div> <!-- .goodTube_modal -->
@@ -2332,6 +2764,89 @@
 
 		if (goodTube_button_saveSettings) {
 			goodTube_button_saveSettings.addEventListener('click', () => {
+
+				// Hide suggested videos
+				let goodTube_setting_hideSuggestedVideos = document.querySelector('.goodTube_option_hideSuggestedVideos');
+				if (goodTube_setting_hideSuggestedVideos) {
+					if (goodTube_setting_hideSuggestedVideos.checked) {
+						goodTube_helper_setCookie('goodTube_hideSuggestedVideos', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_hideSuggestedVideos', 'false');
+					}
+				}
+
+				// Hide comments
+				let goodTube_setting_hideComments = document.querySelector('.goodTube_option_hideComments');
+				if (goodTube_setting_hideComments) {
+					if (goodTube_setting_hideComments.checked) {
+						goodTube_helper_setCookie('goodTube_hideComments', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_hideComments', 'false');
+					}
+				}
+
+				// Hide AI summaries
+				let goodTube_setting_hideAiSummaries = document.querySelector('.goodTube_option_hideAiSummaries');
+				if (goodTube_setting_hideAiSummaries) {
+					if (goodTube_setting_hideAiSummaries.checked) {
+						goodTube_helper_setCookie('goodTube_hideAiSummaries', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_hideAiSummaries', 'false');
+					}
+				}
+
+				// Hide members only videos
+				let goodTube_setting_hideMembersOnlyVideos = document.querySelector('.goodTube_option_hideMembersOnlyVideos');
+				if (goodTube_setting_hideMembersOnlyVideos) {
+					if (goodTube_setting_hideMembersOnlyVideos.checked) {
+						goodTube_helper_setCookie('goodTube_hideMembersOnlyVideos', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_hideMembersOnlyVideos', 'false');
+					}
+				}
+
+				// Always play videos from the start
+				let goodTube_setting_alwaysStart = document.querySelector('.goodTube_option_alwaysStart');
+				if (goodTube_setting_alwaysStart) {
+					if (goodTube_setting_alwaysStart.checked) {
+						goodTube_helper_setCookie('goodTube_alwaysStart', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_alwaysStart', 'false');
+					}
+				}
+
+				// Use a black background for the video player
+				let goodTube_setting_blackBackground = document.querySelector('.goodTube_option_blackBackground');
+				if (goodTube_setting_blackBackground) {
+					if (goodTube_setting_blackBackground.checked) {
+						goodTube_helper_setCookie('goodTube_blackBackground', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_blackBackground', 'false');
+					}
+				}
+
+				// Enable instant pausing
+				let goodTube_setting_instantPause = document.querySelector('.goodTube_option_instantPause');
+				if (goodTube_setting_instantPause) {
+					if (goodTube_setting_instantPause.checked) {
+						goodTube_helper_setCookie('goodTube_instantPause', 'true');
+					}
+					else {
+						goodTube_helper_setCookie('goodTube_instantPause', 'false');
+					}
+				}
+
+				// Videos per row on the home page
+				let goodTube_setting_videosPerRow = document.querySelector('.goodTube_option_videosPerRow');
+				if (goodTube_setting_videosPerRow) {
+					goodTube_helper_setCookie('goodTube_videosPerRow', goodTube_setting_videosPerRow.value.toString().toLowerCase());
+				}
 
 				// Refresh the page
 				window.location.href = window.location.href;
@@ -2908,11 +3423,6 @@
 		// Enable picture in picture next and prev buttons
 		goodTube_iframe_enablePipButtons();
 
-		// Enable the prev button if required
-		if (goodTube_getParams['goodTube_playlist'] !== 'undefined' && goodTube_getParams['goodTube_playlist'] === 'true') {
-			goodTube_iframe_enablePrevButton();
-		}
-
 		// Sync the aspect ratio
 		goodTube_iframe_syncAspectRatio();
 
@@ -3042,7 +3552,8 @@
 			.ytp-endscreen-next,
 			.ytp-endscreen-previous,
 			.ytp-info-panel-preview,
-			.ytp-generic-popup {
+			.ytp-generic-popup,
+			.goodTube_hideEndScreen .html5-endscreen {
 				display: none !important;
 			}
 
@@ -3703,6 +4214,13 @@
 
 	let goodTube_iframe_supportDoubleSpeed_init_timeout = setTimeout(() => {}, 0);
 	function goodTube_iframe_supportDoubleSpeed_init() {
+		/* Make sure this is enabled
+		-------------------------------------------------- */
+		if (goodTube_getParams['goodTube_instantPause'] === 'true') {
+			return;
+		}
+
+
 		/* Setup vars
 		-------------------------------------------------- */
 		clearTimeout(goodTube_iframe_supportDoubleSpeed_holdTimeout);
@@ -3937,18 +4455,6 @@
 			let bits = event.data.replace('goodTube_load_', '').split('|||');
 			let videoId = bits[0];
 			let startSeconds = parseFloat(bits[1]);
-			let viewingPlaylist = bits[2];
-
-			// If we're on a playlist
-			if (viewingPlaylist === 'true') {
-				// Enable the previous button
-				goodTube_iframe_enablePrevButton();
-			}
-			// Otherwise, we're not on a playlist
-			else {
-				// Disable the previous button
-				goodTube_iframe_disablePrevButton();
-			}
 
 			// Then load the new video
 			goodTube_iframe_loadVideo(videoId, startSeconds);
@@ -3992,6 +4498,13 @@
 		// Play
 		else if (event.data.indexOf('goodTube_play|||') !== -1) {
 			goodTube_iframe_play(event.data.replace('goodTube_play|||', ''));
+		}
+
+		// Hide the end screen thumbnails
+		else if (event.data === 'goodTube_endScreen_hide') {
+			if (document.body && !document.body.classList.contains('goodTube_hideEndScreen')) {
+				document.body.classList.add('goodTube_hideEndScreen');
+			}
 		}
 
 		// Keyboard shortcut
@@ -4038,6 +4551,16 @@
 			goodTube_helper_setCookie('goodTube_autoplay', 'false');
 			goodTube_autoplay = 'false';
 			goodTube_iframe_setAutoplay('false');
+		}
+
+		// Enable previous button
+		else if (event.data === 'goodTube_prevButton_true') {
+			goodTube_iframe_enablePrevButton();
+		}
+
+		// Disable previous button
+		else if (event.data === 'goodTube_prevButton_false') {
+			goodTube_iframe_disablePrevButton();
 		}
 	}
 
@@ -4406,7 +4929,6 @@
 	// Add the Youtube iframe
 	function goodTube_proxyIframe_addYoutubeIframe() {
 		let youtubeIframe = document.createElement('iframe');
-		youtubeIframe.src = '';
 		youtubeIframe.setAttribute('width', '100%');
 		youtubeIframe.setAttribute('height', '100%');
 		youtubeIframe.setAttribute('frameborder', '0');
@@ -4442,14 +4964,17 @@
 		if (youtubeIframe) {
 			// Change the source of the youtube iframe
 			if (event.data.indexOf('goodTube_src_') !== -1) {
-				// First time just change the src
-				if (youtubeIframe.src === '' || youtubeIframe.src.indexOf('?goodTubeProxy=1') !== -1) {
-					youtubeIframe.src = event.data.replace('goodTube_src_', '');
-				}
-				// All other times, we need to use this weird method so it doesn't mess with our browser history
-				else {
-					youtubeIframe.contentWindow.location.replace(event.data.replace('goodTube_src_', ''));
-				}
+				// // First time just change the src
+				// if (youtubeIframe.src === '' || youtubeIframe.src.indexOf('?goodTubeProxy=1') !== -1) {
+				// 	youtubeIframe.src = event.data.replace('goodTube_src_', '');
+				// }
+				// // All other times, we need to use this weird method so it doesn't mess with our browser history
+				// else {
+				// 	youtubeIframe.contentWindow.location.replace(event.data.replace('goodTube_src_', ''));
+				// }
+
+				// We need to use this method so it doesn't mess with the browser history
+				youtubeIframe.contentWindow.location.replace(event.data.replace('goodTube_src_', ''));
 			}
 			// Pass all other messages down to the youtube iframe
 			else {
@@ -4484,9 +5009,6 @@
 		}
 	}
 
-  console.log('d');
-  
 	// Let's go!
 	goodTube_start();
-  console.log('e');
 })();
