@@ -1,4 +1,4 @@
-const version = '0.2.1';
+const version = '0.2.2';
 
 (function () {
 	'use strict';
@@ -1492,75 +1492,6 @@ const version = '0.2.1';
 	}
 
 
-	/* Usage stats
-	------------------------------------------------------------------------------------------
-	Don't worry everyone - these are just simple counters that let me know the following;
-	 - Daily unique users
-	 - Total unique users
-	 - Daily videos played
-	 - Total videos played
-
-	This is only in here so I can have some fun and see how many people use this thing I made **no private info is tracked**
-	*/
-
-	// Count unique users
-	function goodTube_stats_user() {
-		/* Get today's date as yyyy-mm-dd (UTC time)
-		-------------------------------------------------- */
-		let date_local = new Date();
-		let date_utc = Date.UTC(date_local.getUTCFullYear(), date_local.getUTCMonth(), date_local.getUTCDate(), date_local.getUTCHours(), date_local.getUTCMinutes(), date_local.getUTCSeconds());
-		let date_utc_formatted = new Date(date_utc);
-		let date_string = date_utc_formatted.toISOString().split('T')[0];
-
-
-		/* Daily unique users
-		-------------------------------------------------- */
-		// If there's no cookie
-		if (!goodTube_helper_getCookie('goodTube_uniqueUserStat_' + date_string)) {
-			// Count
-			fetch(
-				'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x75\x73\x65\x72\x73\x5f\x64\x61\x69\x6c\x79\x2e\x70\x68\x70',
-				{
-					referrerPolicy: 'no-referrer'
-				}
-			);
-
-			// Set a cookie (2 days exp time - to limit the cookies we create)
-			goodTube_helper_setCookie('goodTube_uniqueUserStat_' + date_string, 'true', 2);
-		}
-
-
-		/* Total unique users
-		-------------------------------------------------- */
-		// If there's no cookie
-		if (!goodTube_helper_getCookie('goodTube_uniqueUserStat')) {
-			// Count
-			fetch(
-				'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x75\x73\x65\x72\x73\x5f\x74\x6f\x74\x61\x6c\x2e\x70\x68\x70',
-				{
-					referrerPolicy: 'no-referrer'
-				}
-			);
-
-			// Set a cookie
-			goodTube_helper_setCookie('goodTube_uniqueUserStat', 'true');
-		}
-	}
-
-	// Count videos played
-	function goodTube_stats_video() {
-		/* Videos played (combined total and daily)
-		-------------------------------------------------- */
-		// Count
-		fetch(
-			'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x76\x69\x64\x65\x6f\x73\x2e\x70\x68\x70',
-			{
-				referrerPolicy: 'no-referrer'
-			}
-		);
-	}
-
-
 	/* Core functions
 	------------------------------------------------------------------------------------------ */
 	// Init
@@ -1620,9 +1551,6 @@ const version = '0.2.1';
 
 		// Init the "hide and mute ads" fallback
 		goodTube_hideAndMuteAdsFallback_init();
-
-		// Usage stats
-		goodTube_stats_user();
 
 		// Keyboard shortcuts
 		goodTube_shortcuts_init();
@@ -1877,9 +1805,6 @@ const version = '0.2.1';
 			if (goodTube_helper_watchingVideo()) {
 				// Load the video
 				goodTube_player_load();
-
-				// Usage stats
-				goodTube_stats_video();
 			}
 			// Otherwise if we're not viewing a video
 			else {
