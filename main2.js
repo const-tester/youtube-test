@@ -5008,7 +5008,8 @@
 			goodTube_iframe_init();
 		}
 	}
-
+	console.log('v_0.1');
 	// Let's go!
 	goodTube_start();
 })();
+
