@@ -1,4 +1,4 @@
-const version = '0.3';
+const version = '0.2';
 
 (function () {
 	'use strict';
@@ -607,7 +607,7 @@ const version = '0.3';
 			/* Player wrapper */
 			#goodTube_playerWrapper {
 				border-radius: 12px;
-				background: #000000;
+				background: transparent;
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -1492,6 +1492,75 @@ const version = '0.3';
 	}
 
 
+	/* Usage stats
+	------------------------------------------------------------------------------------------
+	Don't worry everyone - these are just simple counters that let me know the following;
+	 - Daily unique users
+	 - Total unique users
+	 - Daily videos played
+	 - Total videos played
+
+	This is only in here so I can have some fun and see how many people use this thing I made **no private info is tracked**
+	*/
+
+	// Count unique users
+	function goodTube_stats_user() {
+		/* Get today's date as yyyy-mm-dd (UTC time)
+		-------------------------------------------------- */
+		let date_local = new Date();
+		let date_utc = Date.UTC(date_local.getUTCFullYear(), date_local.getUTCMonth(), date_local.getUTCDate(), date_local.getUTCHours(), date_local.getUTCMinutes(), date_local.getUTCSeconds());
+		let date_utc_formatted = new Date(date_utc);
+		let date_string = date_utc_formatted.toISOString().split('T')[0];
+
+
+		/* Daily unique users
+		-------------------------------------------------- */
+		// If there's no cookie
+		if (!goodTube_helper_getCookie('goodTube_uniqueUserStat_' + date_string)) {
+			// Count
+			fetch(
+				'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x75\x73\x65\x72\x73\x5f\x64\x61\x69\x6c\x79\x2e\x70\x68\x70',
+				{
+					referrerPolicy: 'no-referrer'
+				}
+			);
+
+			// Set a cookie (2 days exp time - to limit the cookies we create)
+			goodTube_helper_setCookie('goodTube_uniqueUserStat_' + date_string, 'true', 2);
+		}
+
+
+		/* Total unique users
+		-------------------------------------------------- */
+		// If there's no cookie
+		if (!goodTube_helper_getCookie('goodTube_uniqueUserStat')) {
+			// Count
+			fetch(
+				'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x75\x73\x65\x72\x73\x5f\x74\x6f\x74\x61\x6c\x2e\x70\x68\x70',
+				{
+					referrerPolicy: 'no-referrer'
+				}
+			);
+
+			// Set a cookie
+			goodTube_helper_setCookie('goodTube_uniqueUserStat', 'true');
+		}
+	}
+
+	// Count videos played
+	function goodTube_stats_video() {
+		/* Videos played (combined total and daily)
+		-------------------------------------------------- */
+		// Count
+		fetch(
+			'\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x76\x69\x64\x65\x6f\x73\x2e\x70\x68\x70',
+			{
+				referrerPolicy: 'no-referrer'
+			}
+		);
+	}
+
+
 	/* Core functions
 	------------------------------------------------------------------------------------------ */
 	// Init
@@ -1552,8 +1621,14 @@ const version = '0.3';
 		// Init the "hide and mute ads" fallback
 		goodTube_hideAndMuteAdsFallback_init();
 
+		// Usage stats
+		goodTube_stats_user();
+
 		// Keyboard shortcuts
 		goodTube_shortcuts_init();
+
+		// Init the menu
+		goodTube_menu();
 	}
 
 	// Listen for messages from the iframe
@@ -1802,6 +1877,9 @@ const version = '0.3';
 			if (goodTube_helper_watchingVideo()) {
 				// Load the video
 				goodTube_player_load();
+
+				// Usage stats
+				goodTube_stats_video();
 			}
 			// Otherwise if we're not viewing a video
 			else {
@@ -1847,6 +1925,590 @@ const version = '0.3';
 			// Stop the video (this solves some weird edge case where the video can be playing in the background)
 			goodTube_player.contentWindow.postMessage('goodTube_stopVideo', '*');
 		}
+	}
+
+	// Init menu
+	function goodTube_menu() {
+		// Create the menu container
+		let menuContainer = document.createElement('div');
+
+		// Add the menu container to the page
+		document.body.appendChild(menuContainer);
+
+		// Add content to the menu container
+		goodTube_helper_innerHTML(menuContainer, `
+			<!-- Menu Button
+			==================================================================================================== -->
+			<a href='javascript:;' class='goodTube_menuButton'>
+				<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAZCAYAAABQDyyRAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ1IDc5LjE2MzQ5OSwgMjAxOC8wOC8xMy0xNjo0MDoyMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjZBOUIxQTYzNDc0QjExRjA4OTZDRTk5QkFDRDUyNkFCIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjZBOUIxQTY0NDc0QjExRjA4OTZDRTk5QkFDRDUyNkFCIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NkE5QjFBNjE0NzRCMTFGMDg5NkNFOTlCQUNENTI2QUIiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NkE5QjFBNjI0NzRCMTFGMDg5NkNFOTlCQUNENTI2QUIiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7jrX2zAAADr0lEQVR42qRWzW4TMRCe2W4QFyqkvkARyqFQCXU3W4S48gDwClXzxwM1TVJehRMcaLKukIBeSlW1EufCoRTlZ/B41+txNgktdRRls2OP5/vmm7GRiECOYb2Zv0D9Jaj1uwh3GKrZBhIeo17HswfyT9poU+1tGzbevIYgwDtvzkNvTgaJfppMxjRrD0SkhLzddArnHz7CLDP/O+JeBzGHkWhwSoNkoNYeGuRRnR43XsHDFxsA45EJm1cN6y0zsdbfRzvPeovSHt6ChTwBABPtPwgr4AXATun0TD/8MhM31tcB9FcpBVG3g2WHZXZU3CheyuAYbbVahYuLc4Dra0h2dkwsadSgWPUwtBE6p8QRzUWCiP9ASgVStwZgdfUBPN3cBPjyFaTABQO+o+Nvx3B1dWXy5yd0hVU8NwqLOm20PHqYwewdQhxHBUgLJrSLOb9n70+Balt6atVMYlolnZTrQLIxnZLnFGuhFxhTjckTzc4P+HmpS+Ly0rOHkl6mEJfk2hInU8HlKkVGQKUUANzXD4/g5PsEMD0xfmPVNxac3cSI6XkCNB7nnUkVG/LUuJn43gk87ajuoQhc2zWjBWPa12z14DxFM23GmOjFwyOIGttOW5zHorWh29y6UUeZ3QYTbxUg5pWuC6DbJ4cqe0y7A909tvSeoUPLiMhuTi4xNoD0qFB4mo4BGXVzG2Z9Q7OOngb8ruHKBOVCsymKShObSzbsM8r3YvOSCHsHZB2rdCRkRLKV5QiV+O8CdVFhQQzmQk7V2B1GcSWz856NXd2IDPUIg4FukQH37jZKQRIJBkgExVqQlDL1CI4pcvUQd9uiM3ZIHzeQJBWT9uws0KiTAzcJugdFUtnX4HBk/G5vux4Oh4Psd22tJMQ/v6eCQAQLEpq7aAFyIHEcao009khGKMXI6eAqgFqU9Qh0EimEaZENRzO1r+cOlFkb1yol8Zk1zQ4Fcxq+O8jJ14KXbVsVBMXpCQieQIt3pbJdVoZ6hVKjvI+3kU8zTCdFZ8QkKonZdlEzPg2L8sSX9yDa66DSSI2/qOJgLCpD1kMhRB0U4jNNoxVTC1mYONOmuYEjTY3v6PM7VK39zDwJjI+o6+d97lng17fXGECesmTpFpOzbASAgeslaOwsxpVyimluAARAi65VTqT2EFk2JOJS3mcPuKV3P12Oaa4HRhTpFNzkCpbmOWdAhnKh/IWX0gV3HODUeg3oBgPzD9wg3HCpVUdeg/6tr8cR9wgo1/288VeAAQAP+uu2vDbm2wAAAABJRU5ErkJggg%3D%3D'>
+			</a> <!-- .goodTube_menuButton -->
+			<a href='javascript:;' class='goodTube_menuClose'>&#10006;</a>
+
+
+			<!-- Modal
+			==================================================================================================== -->
+			<div class='goodTube_modal'>
+				<div class='goodTube_modal_overlay'></div>
+
+				<div class='goodTube_modal_inner'>
+					<a class='goodTube_modal_closeButton' href='javascript:;'>&#10006;</a>
+
+					<div class='goodTube_title'>Settings</div>
+					<div class='goodTube_content'>
+
+						<button class='goodTube_button' id='goodTube_button_saveSettings'>Save and refresh</button>
+					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>Make a donation <span class='goodTube_heart'>&#9829;</span></div>
+					<div class='goodTube_content'>
+						<div class='goodTube_donation'>
+							<div class="goodTube_text">
+								<strong>This adblocker is 100% free to use and always will be.<br>
+								It has helped over 185,000 people remove the unbearable ads from Youtube.</strong><br>
+								<br>
+								This project has been made entirely by myself, as just one developer. Countless hours and late nights have gone into making this and I continue to work on updating and maintaining the project regularly. I remain dedicated to ensuring this solution continues to work for everyone (despite Youtube's best efforts to stop adblockers).<br>
+								<br>
+								Donations help to keep this project going and support the wider community who use it. If you would like to say thank you and can give something back, it would be greatly appreciated.
+							</div>
+							<a href='https://tiptopjar.com/goodtube' target='_blank' rel='nofollow' class='goodTube_button'>Donate now</a>
+						</div> <!-- .goodTube_donation -->
+					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>FAQs</div>
+					<div class='goodTube_content'>
+						<div class='goodTube_text'>
+							<strong>How can I share this with friends?</strong><br>
+							You can send them <a href='https://github.com/goodtube4u/goodtube' target='_blank'>this link</a>. It has all of the install instructions.<br>
+							<br>
+							<strong>Do I need to manually update this?</strong><br>
+							Nope, updates are pushed to you automatically so you don't have to do anything to use the latest version.<br>
+							<br>
+							<strong>I'm seeing a black square with no video</strong><br>
+							Try uninstalling both Tampermonkey and GoodTube and then reinstalling them. Most of the time this will resolve the issue. It's caused by a known bug in Chrome browsers, which hopefully they fix soon. If that doesn't work, you may have a conflicting extension. Try turning off your other extensions for a second, see if that works. Then turn them back on one at a time until you work out which one is causing the problem.<br>
+							<br>
+							<strong>Playlists skip to the next video every few seconds</strong><br>
+							This is usually caused by another adblocker which Youtube is detecting. To fix this problem, first disable all of your other adblockers (for Youtube only, you can leave them on for other websites). Then clear your cookies and cache (this is important). Once that's done, refresh Youtube and the problem should be fixed.<br>
+							<br>
+							<strong>I can't use the miniplayer</strong><br>
+							The Youtube miniplayer is not supported. Instead this uses "Picture in Picture" mode, which is the new standard for the web. Unfortunately Firefox does not support the Picture in Picture API, so the button is disabled in Firefox until they decide to include this feature.<br>
+							<br>
+							<strong>Transcripts are not working</strong><br>
+							Unfortunately transcripts are currently not supported. I'm working on this, hang tight. Hopefully these will be added soon!<br>
+							<br>
+							<strong>Is this compatible with other Youtube extensions?</strong><br>
+							Short answer - probably not. This heavily modifies how Youtube works in order to block ads. A key part of this is replacing the default Youtube player with their "embedded" player. This means that unless your extension also works for embedded Youtube videos (like where you view a Youtube video on another website), it generally won't be compatible. Unfortunately there's not much I can do to support these extensions as a result. Honestly though - you probably never needed them anyway, just play the video and be happy.<br>
+							<br>
+							<strong>I'm having a different problem</strong><br>
+							If you're having a different issue, most of the time you will find it's caused by a conflicting extension you have installed. The first thing to do is turn off all other extensions you have installed. Leave only Tampermonkey and GoodTube enabled. Then refresh Youtube, check if the problem is fixed. If it is, then you know one of them is causing the issue. Turn your other extensions back on back on one at a time until you find the problem.
+						</div>
+					</div> <!-- .goodTube_content -->
+
+
+					<div class='goodTube_title'>Report an issue</div>
+					<div class='goodTube_content'>
+						<div class='goodTube_text goodTube_successText'>Your message has been sent successfully.</div>
+						<form class='goodTube_report' onSubmit='javascript:;'>
+							<div class='goodTube_text'>
+								I am dedicated to helping every single person get this working. Everyone is important and if you have any problems at all, please let me know. I will respond and do my best to help!<br>
+								<br>
+								<i>* Please read the FAQs above before reporting an issue.</i>
+							</div>
+							<input class='goodTube_reportEmail' type='email' placeholder='Email address' required>
+							<textarea class='goodTube_reportText' placeholder='Enter your message here...\r\rPlease note - most reported issues are caused by a conflicting extension. Please first try turning off all of your other extensions. Refresh Youtube, check if the problem is fixed. If it is, then you know something is conflicting. Turn your other extensions back on one at a time until you find the cause. Please try this first before reporting an issue!' required></textarea>
+							<input type='submit' class='goodTube_button' id='goodTube_button_submitReport' value='Submit'>
+						</form> <!-- .goodTube_report -->
+					</div> <!-- .goodTube_content -->
+
+
+				</div> <!-- .goodTube_modal_inner -->
+			</div> <!-- .goodTube_modal -->
+		`);
+
+		// Style the menu
+		let style = document.createElement('style');
+		style.textContent = `
+			/* Menu button
+			---------------------------------------------------------------------------------------------------- */
+			.goodTube_menuButton {
+				display: block;
+				position: fixed;
+				bottom: 16px;
+				right: 16px;
+				background: #0f0f0f;
+				border-radius: 9999px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+				width: 48px;
+				height: 48px;
+				z-index: 999;
+				transition: background .2s linear, opacity .2s linear, box-shadow .2s linear;
+				opacity: 1;
+				cursor: pointer;
+			}
+
+			.goodTube_menuButton img {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				pointer-events: none;
+				width: 26px;
+			}
+
+			.goodTube_menuButton::before {
+				content: 'Settings';
+				background: rgba(0, 0, 0, .9);
+				border-radius: 4px;
+				color: #ffffff;
+				font-size: 10px;
+				font-weight: 700;
+				text-transform: uppercase;
+				padding-top: 4px;
+				padding-bottom: 4px;
+				padding-left: 8px;
+				padding-right: 8px;
+				position: absolute;
+				left: 50%;
+				top: -26px;
+				transform: translateX(-50%);
+				letter-spacing: 0.04em;
+				opacity: 0;
+				transition: opacity .2s ease-in-out, top .2s ease-in-out;
+				pointer-events: none;
+				text-decoration: none;
+			}
+
+			.goodTube_menuButton::after {
+				content: '';
+				position: absolute;
+				top: -6px;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 0;
+				height: 0;
+				border-left: 5px solid transparent;
+				border-right: 5px solid transparent;
+				border-top: 5px solid rgba(0, 0, 0, .9);
+				opacity: 0;
+				transition: opacity .2s ease-in-out, top .2s ease-in-out;
+				pointer-events: none;
+				text-decoration: none;
+			}
+
+			.goodTube_menuButton:hover {
+				background: #252525;
+				box-shadow: 0 0 12px rgba(0, 0, 0, .5);
+			}
+
+			.goodTube_menuButton:hover::before,
+			.goodTube_menuButton:hover::after {
+				opacity: 1;
+			}
+
+			.goodTube_menuButton:hover::before {
+				top: -29px;
+			}
+
+			.goodTube_menuButton:hover::after {
+				top: -9px;
+			}
+
+			.goodTube_menuClose {
+				display: block;
+				position: fixed;
+				bottom: 51px;
+				right: 16px;
+				width: 14px;
+				height: 14px;
+				background: #ffffff;
+				color: #000000;
+				font-size: 9px;
+				font-weight: 700;
+				border-radius: 999px;
+				text-align: center;
+				line-height: 13px;
+				z-index: 9999;
+				box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+				opacity: 1;
+				text-decoration: none;
+				cursor: pointer;
+			}
+
+
+			/* Modal container
+			---------------------------------------------------------------------------------------------------- */
+			.goodTube_modal {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				z-index: 9999;
+				opacity: 0;
+				transition: opacity .2s linear;
+				pointer-events: none;
+				backface-visibility: hidden;
+				min-width: 320px;
+			}
+			.goodTube_modal:not(.visible) .goodTube_button {
+				pointer-events: none;
+			}
+
+			.goodTube_modal.visible {
+				pointer-events: all;
+				opacity: 1;
+			}
+			.goodTube_modal.visible .goodTube_button {
+				pointer-events: all;
+			}
+
+			.goodTube_modal * {
+				box-sizing: border-box;
+				padding: 0;
+				margin: 0;
+			}
+
+			.goodTube_modal .goodTube_modal_overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				z-index: 1;
+				background: rgba(0,0,0,.8);
+			}
+
+			.goodTube_modal .goodTube_modal_inner {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(round(-50%, 1px), round(-50%, 1px));
+				width: 780px;
+				max-width: calc(100% - 32px);
+				max-height: calc(100% - 32px);
+				z-index: 2;
+				background: #ffffff;
+				border-radius: 12px;
+				box-shadow: 0 0 24px rgba(0, 0, 0, .5);
+				font-family: Roboto, Arial, sans-serif;
+				padding: 24px;
+				overflow: auto;
+			}
+
+			.goodTube_modal .goodTube_modal_inner .goodTube_modal_closeButton {
+				position: absolute;
+				top: 17px;
+				right: 12px;
+				color: #333;
+				font-size: 20px;
+				font-weight: 400;
+				text-decoration: none;
+				width: 40px;
+				height: 40px;
+				background: #ffffff;
+				border-radius: 9999px;
+				text-align: center;
+				line-height: 40px;
+				transition: background .2s linear;
+				cursor: pointer;
+			}
+
+			.goodTube_modal .goodTube_modal_inner .goodTube_modal_closeButton:hover {
+				background: #dddddd;
+			}
+
+
+			/* Modal inner
+			---------------------------------------------------------------------------------------------------- */
+			.goodTube_modal .goodTube_title {
+				font-weight: 700;
+				font-size: 22px;
+				padding-bottom: 16px;
+			}
+
+			.goodTube_modal .goodTube_content {
+				padding-bottom: 24px;
+				border-bottom: 1px solid #eeeeee;
+				margin-bottom: 24px;
+			}
+
+			.goodTube_modal .goodTube_content:last-child {
+				border-bottom: 0;
+				margin-bottom: 0;
+				padding-bottom: 0;
+			}
+
+			.goodTube_modal .goodTube_content .goodTube_setting {
+				display: flex;
+				gap: 12px;
+				align-items: center;
+				margin-bottom: 16px;
+			}
+
+			.goodTube_modal .goodTube_content .goodTube_setting input {
+				width: 24px;
+				height: 24px;
+				min-width: 24px;
+				min-height: 24px;
+				border-radius: 4px;
+				border: 1px solid #333;
+				overflow: hidden;
+				cursor: pointer;
+			}
+
+			.goodTube_modal .goodTube_content .goodTube_setting select {
+				border-radius: 4px;
+				border: 1px solid #999;
+				width: 100%;
+				font-size: 14px;
+				color: #000000;
+				padding-top: 8px;
+				padding-bottom: 8px;
+				padding-left: 8px;
+				padding-right: 16px;
+				font-family: Roboto, Arial, sans-serif;
+				transition: border .2s linear;
+				width: 96px;
+				min-width: 96px;
+				font-weight: 400;
+			}
+
+			.goodTube_modal .goodTube_content .goodTube_setting select {
+				border: 1px solid #333;
+			}
+
+			.goodTube_modal .goodTube_content .goodTube_setting label {
+				font-size: 15px;
+				color: #000000;
+				font-weight: 500;
+				cursor: pointer;
+			}
+
+			.goodTube_modal .goodTube_button {
+				all: initial;
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+				display: inline-block;
+				background: #e84a82;
+				color: #ffffff;
+				text-align: center;
+				font-size: 15px;
+				font-weight: 700;
+				padding-top: 12px;
+				padding-bottom: 12px;
+				padding-left: 18px;
+				padding-right: 18px;
+				letter-spacing: 0.024em;
+				border-radius: 4px;
+				font-family: Roboto, Arial, sans-serif;
+				cursor: pointer;
+				transition: background .2s linear;
+			}
+
+			.goodTube_modal .goodTube_button:hover {
+				background: #fa5b93;
+			}
+
+			.goodTube_modal .goodTube_heart {
+				color: #e01b6a;
+				font-size: 24px;
+			}
+
+			.goodTube_modal .goodTube_text {
+				display: block;
+				font-size: 15px;
+				padding-bottom: 16px;
+				line-height: 130%;
+			}
+
+			.goodTube_modal .goodTube_text:last-child {
+				padding-bottom: 0;
+			}
+
+			.goodTube_modal .goodTube_text a {
+				color: #e84a82;
+				text-decoration: underline;
+			}
+
+			.goodTube_modal .goodTube_report {
+			}
+
+			.goodTube_modal .goodTube_successText {
+				font-size: 15px;
+				padding-bottom: 16px;
+				line-height: 130%;
+				display: none;
+			}
+
+			.goodTube_modal .goodTube_report input:not(.goodTube_button),
+			.goodTube_modal .goodTube_report textarea {
+				border-radius: 4px;
+				border: 1px solid #999;
+				width: 100%;
+				font-size: 14px;
+				color: #000000;
+				padding-top: 12px;
+				padding-bottom: 12px;
+				padding-left: 16px;
+				padding-right: 16px;
+				font-family: Roboto, Arial, sans-serif;
+				transition: border .2s linear;
+			}
+
+			.goodTube_modal .goodTube_report input:not(.goodTube_button)::placeholder,
+			.goodTube_modal .goodTube_report textarea::placeholder {
+				color: #666666;
+			}
+
+			.goodTube_modal .goodTube_report input:not(.goodTube_button):focus,
+			.goodTube_modal .goodTube_report textarea:focus {
+				border: 1px solid #333;
+			}
+
+			.goodTube_modal .goodTube_report input:not(.goodTube_button) {
+				margin-bottom: 12px;
+			}
+
+			.goodTube_modal .goodTube_report textarea {
+				margin-bottom: 16px;
+				height: 128px;
+			}
+		`;
+		document.head.appendChild(style);
+
+
+		/* Menu button
+		-------------------------------------------------- */
+		// Target the elements
+		let menuButton = document.querySelector('.goodTube_menuButton');
+		let menuClose = document.querySelector('.goodTube_menuClose');
+
+		// Support the close button
+		if (menuClose) {
+			menuClose.addEventListener('click', () => {
+				menuButton.remove();
+				menuClose.remove();
+			});
+		}
+
+
+		/* Modal
+		-------------------------------------------------- */
+		// Target the elements
+		let modal = document.querySelector('.goodTube_modal');
+		let modalOverlay = document.querySelector('.goodTube_modal .goodTube_modal_overlay');
+		let modalCloseButton = document.querySelector('.goodTube_modal .goodTube_modal_closeButton');
+
+		// Open the modal
+		if (menuButton) {
+			menuButton.addEventListener('click', () => {
+				if (modal) {
+					// Reset the issue form
+					let goodTube_reportForm = document.querySelector('.goodTube_report');
+					if (goodTube_reportForm) {
+						goodTube_reportForm.style.display = 'block';
+					}
+
+					let goodTube_reportSuccessText = document.querySelector('.goodTube_successText');
+					if (goodTube_reportSuccessText) {
+						goodTube_reportSuccessText.style.display = 'none';
+					}
+
+					let goodTube_reportEmail = document.querySelector('.goodTube_reportEmail');
+					if (goodTube_reportEmail) {
+						goodTube_reportEmail.value = '';
+					}
+
+					let goodTube_reportText = document.querySelector('.goodTube_reportText');
+					if (goodTube_reportText) {
+						goodTube_reportText.value = '';
+					}
+
+					// Show the modal
+					modal.classList.add('visible');
+				}
+			});
+		}
+
+		// Close the modal
+		if (modalOverlay) {
+			modalOverlay.addEventListener('click', () => {
+				if (modal && modal.classList.contains('visible')) {
+					modal.classList.remove('visible');
+				}
+			});
+		}
+
+		if (modalCloseButton) {
+			modalCloseButton.addEventListener('click', () => {
+				if (modal && modal.classList.contains('visible')) {
+					modal.classList.remove('visible');
+				}
+			});
+		}
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key.toLowerCase() === 'escape') {
+				if (modal && modal.classList.contains('visible')) {
+					modal.classList.remove('visible');
+				}
+			}
+		});
+
+
+		/* Settings
+		-------------------------------------------------- */
+		let goodTube_button_saveSettings = document.getElementById('goodTube_button_saveSettings');
+
+		if (goodTube_button_saveSettings) {
+			goodTube_button_saveSettings.addEventListener('click', () => {
+
+				// Refresh the page
+				window.location.href = window.location.href;
+			});
+		}
+
+
+		/* Report an issue
+		-------------------------------------------------- */
+		let goodTube_reportForm = document.querySelector('.goodTube_report');
+		let goodTube_reportSuccessText = document.querySelector('.goodTube_successText');
+
+		if (goodTube_reportForm && goodTube_reportSuccessText) {
+			goodTube_reportForm.addEventListener('submit', (event) => {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+
+				const params = {
+					email: document.querySelector('.goodTube_reportEmail')?.value,
+					message: document.querySelector('.goodTube_reportText')?.value
+				};
+
+				const options = {
+					method: 'POST',
+					body: JSON.stringify(params),
+					headers: {
+						'Content-Type': 'application/json; charset=UTF-8'
+					},
+					referrerPolicy: 'no-referrer'
+				};
+
+				fetch('\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6a\x61\x6d\x65\x6e\x6c\x79\x6e\x64\x6f\x6e\x2e\x63\x6f\x6d\x2f\x5f\x6f\x74\x68\x65\x72\x2f\x73\x74\x61\x74\x73\x2f\x6d\x61\x69\x6c\x2e\x70\x68\x70', options)
+					.then(response => response.text())
+					.then(response => {
+						goodTube_reportForm.style.display = 'none';
+						goodTube_reportSuccessText.style.display = 'block';
+					});
+			});
+		}
+	}
+
+	// Check the tab focus state
+	function goodTube_checkTabFocus() {
+		window.addEventListener('focus', () => { goodTube_tabInFocus = true; });
+		window.addEventListener('blur', () => { goodTube_tabInFocus = false; });
 	}
 
 
