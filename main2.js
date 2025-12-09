@@ -1,4 +1,4 @@
-const version = '0.2.3';
+const version = '0.2.4';
 
 (function () {
 	'use strict';
@@ -322,6 +322,7 @@ const version = '0.2.3';
 	// Hide page elements
 	function goodTube_youtube_hidePageElements() {
 		// Hide ads
+		/*
 		let cssOutput = `
 			.ytd-search ytd-shelf-renderer,
 			ytd-reel-shelf-renderer,
@@ -387,12 +388,13 @@ const version = '0.2.3';
 			 {
 				display: none !important;
 			}
-
+			
 			.style-scope[page-subtype='channels'] ytd-shelf-renderer,
 			.style-scope[page-subtype='channels'] ytm-shelf-renderer {
 				display: block !important;
 			}
-		`;
+			`;
+			*/
 
 		// Hide the main Youtube player
 		cssOutput += `
