@@ -607,7 +607,7 @@ const version = '0.2';
 			/* Player wrapper */
 			#goodTube_playerWrapper {
 				border-radius: 12px;
-				background: transparent;
+				background: #000000;
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -4616,3 +4616,4 @@ const version = '0.2';
 	goodTube_start();
 	console.log(`Running v${version}`);
 })();
+
