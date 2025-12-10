@@ -1,4 +1,4 @@
-const version = '0.2.6';
+const version = '0.2.7';
 
 (function () {
 	'use strict';
@@ -52,18 +52,12 @@ const version = '0.2.6';
 	}
 
 	// Set a cookie
-	function goodTube_helper_setCookie(name, value, days = 399) {
-		// Force new cookie names, we had the path attribute wrong...sorry all this will reset your settings (22/10/2025)
-		name = name + '_new';
-
+	function goodTube_helper_setCookie(name, value, days = 36500) {
 		document.cookie = name + "=" + encodeURIComponent(value) + ";SameSite=Lax;path=/;max-age=" + (days * 24 * 60 * 60);
 	}
 
 	// Get a cookie
 	function goodTube_helper_getCookie(name) {
-		// Force new cookie names, we had the path attribute wrong...sorry all this will reset your settings (22/10/2025)
-		name = name + '_new';
-
 		// Split the cookie string and get all individual name=value pairs in an array
 		let cookies = document.cookie.split(";");
 
@@ -276,14 +270,14 @@ const version = '0.2.6';
 	let goodTube_tabInFocus = document.hasFocus();
 
 	// Is autoplay turned on?
-	let goodTube_autoplay = goodTube_helper_getCookie('goodTube_autoplay');
+	let goodTube_autoplay = goodTube_helper_getCookie('bestTube_autoplay');
 	if (!goodTube_autoplay) {
-		goodTube_helper_setCookie('goodTube_autoplay', 'true');
+		goodTube_helper_setCookie('bestTube_autoplay', 'true');
 		goodTube_autoplay = 'true';
 	}
 
 	// Get the playback speed to restore it
-	let goodTube_playbackSpeed = goodTube_helper_getCookie('goodTube_playbackSpeed');
+	let goodTube_playbackSpeed = goodTube_helper_getCookie('bestTube_playbackSpeed');
 	if (!goodTube_playbackSpeed) {
 		goodTube_playbackSpeed = '1';
 	}
@@ -1505,7 +1499,7 @@ const version = '0.2.6';
 
 		// Save the playback speed as a cookie
 		else if (event.data.indexOf('goodTube_playbackSpeed_') !== -1) {
-			goodTube_helper_setCookie('goodTube_playbackSpeed', event.data.replace('goodTube_playbackSpeed_', ''));
+			goodTube_helper_setCookie('bestTube_playbackSpeed', event.data.replace('goodTube_playbackSpeed_', ''));
 			goodTube_playbackSpeed = event.data.replace('goodTube_playbackSpeed_', '');
 		}
 
@@ -1538,11 +1532,11 @@ const version = '0.2.6';
 
 		// Autoplay
 		else if (event.data === 'goodTube_autoplay_false') {
-			goodTube_helper_setCookie('goodTube_autoplay', 'false');
+			goodTube_helper_setCookie('bestTube_autoplay', 'false');
 			goodTube_autoplay = 'false';
 		}
 		else if (event.data === 'goodTube_autoplay_true') {
-			goodTube_helper_setCookie('goodTube_autoplay', 'true');
+			goodTube_helper_setCookie('bestTube_autoplay', 'true');
 			goodTube_autoplay = 'true';
 		}
 
@@ -2083,7 +2077,7 @@ const version = '0.2.6';
 				}
 
 				// Update the cookie
-				goodTube_helper_setCookie('goodTube_autoplay', oppositeValue);
+				goodTube_helper_setCookie('bestTube_autoplay', oppositeValue);
 
 				// Update the embedded player
 				goodTube_player.contentWindow.postMessage('goodTube_autoplay_' + oppositeValue, '*');
@@ -3391,14 +3385,14 @@ const version = '0.2.6';
 
 		// Enable autoplay
 		else if (event.data === 'goodTube_autoplay_true') {
-			goodTube_helper_setCookie('goodTube_autoplay', 'true');
+			goodTube_helper_setCookie('bestTube_autoplay', 'true');
 			goodTube_autoplay = 'true';
 			goodTube_iframe_setAutoplay('true');
 		}
 
 		// Disable autoplay
 		else if (event.data === 'goodTube_autoplay_false') {
-			goodTube_helper_setCookie('goodTube_autoplay', 'false');
+			goodTube_helper_setCookie('bestTube_autoplay', 'false');
 			goodTube_autoplay = 'false';
 			goodTube_iframe_setAutoplay('false');
 		}
@@ -3861,5 +3855,5 @@ const version = '0.2.6';
 	
 	// Let's go!
 	goodTube_start();
-	console.log(`Running v${version}`);
+	console.log(`BestTube Player v${version}`);
 })();
