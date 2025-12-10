@@ -1,4 +1,4 @@
-console.log('BestTube v0.0.2')
+console.log('BestTube v0.0.3')
 
 // ============================================================
 //  OPTIONS CSS
@@ -200,7 +200,11 @@ insertStyles();
 
 waitForBody(() => {
   insertPopup();
-  waitForContainer();
+
+  waitForButtonsBar((buttonsBar) => {
+    startObserver(buttonsBar);
+    ensureButton(buttonsBar);
+  });
 });
 
 // ============================================================
@@ -226,19 +230,15 @@ function initCheckboxToggle(id, styleId, css) {
 // ============================================================
 //  WAIT FOR CONTAINER
 // ============================================================
-function waitForBody(cb) {
-  if (document.body) return cb();
-  requestAnimationFrame(() => waitForBody(cb));
+function waitForBody(callback) {
+  if (document.body) return callback();
+  requestAnimationFrame(() => waitForBody(callback));
 }
 
-function waitForContainer() {
+function waitForButtonsBar(callback) {
   const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
-  if (!buttonsBar) {
-    requestAnimationFrame(waitForContainer);
-    return;
-  }
-  startObserver(buttonsBar);
-  ensureButton(buttonsBar);
+  if (buttonsBar) return callback(buttonsBar);
+  requestAnimationFrame(() => waitForButtonsBar(callback));
 }
 
 // ============================================================
