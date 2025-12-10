@@ -1,4 +1,4 @@
-console.log('BestTube v0.0.1')
+console.log('BestTube v0.0.2')
 
 // ============================================================
 //  OPTIONS CSS
@@ -197,8 +197,11 @@ if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTy
 }
 
 insertStyles();
-insertPopup();
-waitForContainer();
+
+waitForBody(() => {
+  insertPopup();
+  waitForContainer();
+});
 
 // ============================================================
 //  CHECKBOXES
@@ -223,6 +226,11 @@ function initCheckboxToggle(id, styleId, css) {
 // ============================================================
 //  WAIT FOR CONTAINER
 // ============================================================
+function waitForBody(cb) {
+  if (document.body) return cb();
+  requestAnimationFrame(() => waitForBody(cb));
+}
+
 function waitForContainer() {
   const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
   if (!buttonsBar) {
