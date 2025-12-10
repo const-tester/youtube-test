@@ -1,4 +1,4 @@
-const version = '0.2.7';
+const versionPlayer = '0.2.7';
 
 (function () {
 	'use strict';
