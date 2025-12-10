@@ -3855,5 +3855,5 @@ const versionPlayer = '0.2.7';
 	
 	// Let's go!
 	goodTube_start();
-	console.log(`BestTube Player v${version}`);
+	console.log(`BestTube Player v${versionPlayer}`);
 })();
