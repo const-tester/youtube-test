@@ -321,6 +321,8 @@ const version = '0.2.4';
 	------------------------------------------------------------------------------------------ */
 	// Hide page elements
 	function goodTube_youtube_hidePageElements() {
+		let cssOutput = '';
+		
 		// Hide ads
 		/*
 		let cssOutput = `
