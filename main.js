@@ -1,4 +1,4 @@
-const version = '0.0.4';
+const version = '0.1.0';
 
 // ============================================================
 //  OPTIONS CSS
@@ -179,14 +179,6 @@ const bestTubeStyleManager = {
 // ============================================================
 //  INIT
 // ============================================================
-if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
-  window.trustedTypes.createPolicy('default', {
-    createHTML: string => string,
-    createScriptURL: string => string,
-    createScript: string => string
-  });
-}
-
 insertStyles();
 
 waitForBody(() => {
