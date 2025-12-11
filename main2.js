@@ -1,18 +1,7 @@
-const versionPlayer = '0.2.7';
+const versionPlayer = '0.1.0';
 
 (function () {
 	'use strict';
-
-
-	/* Setup the CSP (content security policy)
-	------------------------------------------------------------------------------------------ */
-	if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
-		window.trustedTypes.createPolicy('default', {
-			createHTML: string => string,
-			createScriptURL: string => string,
-			createScript: string => string
-		});
-	}
 
 
 	/* Helper functions
