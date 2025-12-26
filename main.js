@@ -1,4 +1,4 @@
-const version = '0.1.2';
+const version = '0.1.0';
 
 // ============================================================
 //  OPTIONS CSS
@@ -68,8 +68,9 @@ const cssRemoveAds = `
   /*-----------*/
 
   /* Ads banner on video */
-  /* #player-ads, */
+  #secondary #player-ads,
   #secondary #panels:has(panel-ad-header-image-lockup-view-model),
+  #secondary #items ytd-ad-slot-renderer,
 
   /* Ads on search */
   ytd-item-section-renderer:has(ytd-ad-slot-renderer),
