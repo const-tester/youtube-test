@@ -134,7 +134,7 @@ const cssRemoveNews = `
 
 const cssRemoveRecommended = `
   /* Do you like this recommendation? on feed */
-  lockup-attachments-view-model:has(yt-slimline-survey-view-model):not(:has(yt-touch-feedback-shape)),
+  lockup-attachments-view-model:has(yt-slimline-survey-view-model):has(path[d=^'M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
 
   /* Are you searching something else? on feed */
   ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
