@@ -1,10 +1,10 @@
-const version = '0.1.0';
+const version = '0.1.1';
 
 // ============================================================
 //  OPTIONS CSS
 // ============================================================
 const cssRemoveAds = `
-  .ytd-search ytd-shelf-renderer,
+/*  .ytd-search ytd-shelf-renderer,
   ytd-reel-shelf-renderer,
   ytd-merch-shelf-renderer,
   ytd-action-companion-ad-renderer,
@@ -63,7 +63,7 @@ const cssRemoveAds = `
   .style-scope[page-subtype='channels'] ytd-shelf-renderer,
   .style-scope[page-subtype='channels'] ytm-shelf-renderer {
     display: block !important;
-  }
+  } */
 
   /*-----------*/
 
