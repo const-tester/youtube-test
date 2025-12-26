@@ -1,4 +1,4 @@
-const version = '0.1.1';
+const version = '0.1.2';
 
 // ============================================================
 //  OPTIONS CSS
@@ -68,7 +68,7 @@ const cssRemoveAds = `
   /*-----------*/
 
   /* Ads banner on video */
-  #player-ads,
+  /* #player-ads, */
   #secondary #panels:has(panel-ad-header-image-lockup-view-model),
 
   /* Ads on search */
