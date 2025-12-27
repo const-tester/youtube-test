@@ -77,7 +77,7 @@ const cssRemoveAds = `
   
   /* Ads on feed */
   ytd-rich-item-renderer:has(ytd-ad-slot-renderer),
-  ytd-item-section-renderer:has(ytd-ad-slot-renderer),
+  ytd-rich-grid-renderer #primary #contents ytd-item-section-renderer:has(ytd-ad-slot-renderer),
   #masthead-ad:has(ytd-ad-slot-renderer),
   
   /* Popup on video */
