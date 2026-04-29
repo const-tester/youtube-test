@@ -317,7 +317,7 @@ function insertStyles() {
     }
 
     #bestTube-popup-title {
-      border-bottom: 1px solid var(--yt-spec-outline);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
       min-height: 48px;
       display: flex;
       flex-direction: row;
