@@ -311,8 +311,8 @@ function insertStyles() {
       border-radius: 12px;
       overflow-x: hidden;
       overflow-y: auto;
-      color: var(--yt-spec-text-primary);
-      background-color: var(--yt-spec-menu-background);
+      color: #f1f1f1;
+      background-color: #282828;
       box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
     }
 
@@ -338,7 +338,7 @@ function insertStyles() {
       border: none;
       cursor: pointer;
       margin-right: 8px;
-      color: var(--yt-spec-text-primary);
+      color: #f1f1f1;
       border-radius: 50%;
       transition: background-color .3s;
     }
@@ -349,7 +349,8 @@ function insertStyles() {
     
     #bestTube-popup-options {
       margin: var(--ytd-margin-4x);
-      color: var(--yt-spec-text-primary); width: max-content;
+      color: #f1f1f1;
+      width: max-content;
     }
       
     #bestTube-popup-options .option {
