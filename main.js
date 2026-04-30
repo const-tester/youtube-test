@@ -143,6 +143,14 @@ const cssRemoveRecommended = `
   ytd-horizontal-card-list-renderer {
     display: none !important;
   }
+
+  /* Most relevant */
+  ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer) {
+    display: none !important;
+  }
+
+  /* Discover more topics */
+  ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer)
 `;
 
 const cssRemoveSuperThanks = `
