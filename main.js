@@ -151,6 +151,11 @@ const cssRemoveRecommended = `
 
   /* Discover more topics */
   ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer)
+
+  /* Play content in the background with YouTube Premium */
+  ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media) {
+  display: none !important;
+}
 `;
 
 const cssRemoveSuperThanks = `
