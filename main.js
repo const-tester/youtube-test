@@ -150,12 +150,19 @@ const cssRemoveRecommended = `
   }
 
   /* Discover more topics */
-  ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer)
+  ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer) {
+    display: none !important;
+  }
 
   /* Play content in the background with YouTube Premium */
   ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media) {
-  display: none !important;
-}
+    display: none !important;
+  }
+
+  /* Are you not receiving adequate recommendations? */
+  ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
+    display: none !important;
+  }
 `;
 
 const cssRemoveSuperThanks = `
