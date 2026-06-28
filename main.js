@@ -4,7 +4,6 @@ const version = '0.1.0';
 //  OPTIONS CSS
 // ============================================================
 const cssRemoveAds = `
-/*
   .ytd-search ytd-shelf-renderer,
   ytd-reel-shelf-renderer,
   ytd-merch-shelf-renderer,
