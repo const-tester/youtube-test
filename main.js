@@ -4,7 +4,8 @@ const version = '0.1.0';
 //  OPTIONS CSS
 // ============================================================
 const cssRemoveAds = `
-/*  .ytd-search ytd-shelf-renderer,
+/*
+  .ytd-search ytd-shelf-renderer,
   ytd-reel-shelf-renderer,
   ytd-merch-shelf-renderer,
   ytd-action-companion-ad-renderer,
@@ -14,11 +15,13 @@ const cssRemoveAds = `
   ytd-in-feed-ad-layout-renderer,
   ytd-ad-slot-renderer,
   ytd-statement-banner-renderer,
-  ytd-banner-promo-renderer-background ytd-ad-slot-renderer,
+  ytd-banner-promo-renderer-background
+  ytd-ad-slot-renderer,
   ytd-in-feed-ad-layout-renderer,
-  ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts),
+  ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts):not([target-id="engagement-panel-macro-markers-description-chapters"]):not([target-id="engagement-panel-searchable-transcript"]),
   ytd-compact-video-renderer:has(.goodTube_hidden),
-  ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer) .ytd-video-masthead-ad-v3-renderer,
+  ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer)
+  .ytd-video-masthead-ad-v3-renderer,
   div#root.style-scope.ytd-display-ad-renderer.yt-simple-endpoint,
   div#sparkles-container.style-scope.ytd-promoted-sparkles-web-renderer,
   div#main-container.style-scope.ytd-promoted-video-renderer,
@@ -39,10 +42,12 @@ const cssRemoveAds = `
   ytm-in-feed-ad-layout-renderer,
   ytm-ad-slot-renderer,
   ytm-statement-banner-renderer,
-  ytm-banner-promo-renderer-background ytm-ad-slot-renderer,
+  ytm-banner-promo-renderer-background
+  ytm-ad-slot-renderer,
   ytm-in-feed-ad-layout-renderer,
   ytm-compact-video-renderer:has(.goodTube_hidden),
-  ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer) .ytm-video-masthead-ad-v3-renderer,
+  ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer)
+  .ytm-video-masthead-ad-v3-renderer,
   div#root.style-scope.ytm-display-ad-renderer.yt-simple-endpoint,
   div#sparkles-container.style-scope.ytm-promoted-sparkles-web-renderer,
   div#main-container.style-scope.ytm-promoted-video-renderer,
@@ -56,31 +61,8 @@ const cssRemoveAds = `
   ytm-promoted-sparkles-web-renderer,
   tp-yt-iron-overlay-backdrop,
   #masthead-ad,
-  #offer-module {
-    display: none !important;
-  }
-
-  .style-scope[page-subtype='channels'] ytd-shelf-renderer,
-  .style-scope[page-subtype='channels'] ytm-shelf-renderer {
-    display: block !important;
-  } */
-
-  /*-----------*/
-
-  /* Ads banner on video */
-  #secondary #player-ads,
-  #secondary #panels:has(panel-ad-header-image-lockup-view-model),
-  #secondary #items ytd-ad-slot-renderer,
-
-  /* Ads on search */
+  #offer-module,
   ytd-item-section-renderer:has(ytd-ad-slot-renderer),
-  
-  /* Ads on feed */
-  ytd-rich-item-renderer:has(ytd-ad-slot-renderer),
-  ytd-rich-grid-renderer #primary #contents ytd-item-section-renderer:has(ytd-ad-slot-renderer),
-  #masthead-ad:has(ytd-ad-slot-renderer),
-  
-  /* Popup on video */
   tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
     display: none !important;
   }
@@ -134,30 +116,22 @@ const cssRemoveNews = `
 
 const cssRemoveRecommended = `
   /* Do you like this recommendation? on feed */
-  lockup-attachments-view-model:has(yt-slimline-survey-view-model):has(path[d=^'M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
+  lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
 
   /* Are you searching something else? on feed */
   ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
 
   /* Other people also search on search */
-  ytd-horizontal-card-list-renderer {
-    display: none !important;
-  }
+  ytd-horizontal-card-list-renderer,
 
   /* Most relevant */
-  ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer) {
-    display: none !important;
-  }
+  ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer),
 
   /* Discover more topics */
-  ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer) {
-    display: none !important;
-  }
+  ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
 
   /* Play content in the background with YouTube Premium */
-  ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media) {
-    display: none !important;
-  }
+  ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media),
 
   /* Are you not receiving adequate recommendations? */
   ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
