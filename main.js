@@ -78,7 +78,7 @@ const cssRemoveMembers = `
   ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
 
   /* Members first tag on video description */
-  #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string,
+  #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string:has(a),
   
   /* Videos on feed */
   ytd-rich-item-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
