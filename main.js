@@ -127,7 +127,7 @@ const cssRemoveRecommended = `
   ytd-horizontal-card-list-renderer,
 
   /* Most relevant */
-  ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer),
+  ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer):not(:has(a[href*="/shorts"])),
 
   /* Discover more topics */
   ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
