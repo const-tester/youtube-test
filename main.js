@@ -111,31 +111,34 @@ const cssRemoveShorts = `
 
 const cssRemoveNews = `
   /* News section on feed */
-  ytd-rich-section-renderer:not(:has(a[href*="/shorts"])) {
+  ytd-rich-section-renderer:not(:has(a[href*="/shorts"])):not(:has(ytd-rating-survey-renderer)) {
     display: none !important;
   }
 `;
 
 const cssRemoveRecommended = `
-  /* Do you like this recommendation? on feed */
+  /* ¿Te gusta esta recomendación? */
   lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
 
-  /* Are you searching something else? on feed */
+  /* ¿Estás buscando otra cosa? */
   ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
 
   /* Other people also search on search */
   ytd-horizontal-card-list-renderer,
 
-  /* Most relevant */
+  /* Más relevante */
   ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer):not(:has(a[href*="/shorts"])),
 
-  /* Discover more topics */
+  /* Descubre más temas */
   ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
 
-  /* Play content in the background with YouTube Premium */
+  /* Reproduce contenido en segundo plano con YouTube Premium */
   ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media),
 
-  /* Are you not receiving adequate recommendations? */
+  /* ¿Qué te ha parecido este vídeo? */
+  ytd-rich-section-renderer:has(ytd-rating-survey-renderer):not(:has(a[href*="/shorts"])),
+
+  /* ¿No está recibiendo las recomendaciones adecuadas? */
   ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
     display: none !important;
   }
