@@ -405,8 +405,8 @@ function insertStyles() {
       width: 100%;
       height: 100%;
       border-radius: 7px;
-      background-color: #717171; /* Color apagado (por defecto) */
-      transition: background-color 0.3s ease;
+      background: #717171;
+      transition: background 0.3s ease;
     }
 
     #bestTube-popup-options .toggle-button {
@@ -423,7 +423,7 @@ function insertStyles() {
 
     /* Estado Activo (Checked) */
     #bestTube-popup-options .toggle-container[checked] .toggle-bar {
-      background-color: #ff0000; /* Fondo animado a rojo */
+      background: linear-gradient(90deg,#f03 80%,#ff2791); /* Fondo animado a rojo */
     }
 
     #bestTube-popup-options .toggle-container[checked] .toggle-button {
@@ -506,7 +506,6 @@ function insertPopup() {
           <div id="toggleButton" class="toggle-button style-scope tp-yt-paper-toggle-button">
             <tp-yt-paper-ripple id="ink" recenters="" class="circle toggle-ink style-scope tp-yt-paper-toggle-button">
               <div id="background" class="style-scope tp-yt-paper-ripple" style="opacity: 0;"></div>
-              <div id="waves" class="style-scope tp-yt-paper-ripple"></div>
             </tp-yt-paper-ripple>
           </div>
         </div>
