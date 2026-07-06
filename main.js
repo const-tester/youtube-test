@@ -197,16 +197,29 @@ function initCheckboxToggle(id, styleId, css) {
   const cb = document.getElementById(id);
   if (!cb) return;
 
+  let isChecked = false;
   const saved = localStorage.getItem("bestTube-" + id);
-  if (saved !== null) cb.checked = saved === "true";
+  if (saved !== null) {
+    isChecked = saved === "true";
+  }
 
   const apply = () => {
-    const active = cb.checked;
-    localStorage.setItem("bestTube-" + id, active);
-    bestTubeStyleManager.set(styleId, active ? css : null);
+    localStorage.setItem("bestTube-" + id, isChecked);
+    bestTubeStyleManager.set(styleId, isChecked ? css : null);
+    
+    // Toggle state visually via attribute for the custom element
+    if (isChecked) {
+      cb.setAttribute("checked", "");
+    } else {
+      cb.removeAttribute("checked");
+    }
   };
 
-  cb.addEventListener("change", apply);
+  cb.addEventListener("click", () => {
+    isChecked = !isChecked;
+    apply();
+  });
+  
   apply();
 }
 
@@ -349,27 +362,34 @@ function insertStyles() {
     #bestTube-popup-options {
       margin: var(--ytd-margin-4x);
       color: #f1f1f1;
-      width: max-content;
+      width: auto;
     }
       
     #bestTube-popup-options .option {
       font-weight: 400;
       font-size: 1.5em;
       margin-bottom: 16px;
-      width: max-content;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     
     #bestTube-popup-options .option:last-child {
       margin-bottom: 0;
     }
 
-    #bestTube-popup-options .option label:not([for="videos-per-row"]),
-    #bestTube-popup-options .option input[type="checkbox"] {
+    #bestTube-popup-options .option label {
+      pointer-events: none;
+    }
+
+    #bestTube-popup-options .option .toggle-container {
       cursor: pointer;
+      margin-left: 16px;
     }
 
     #bestTube-popup-options .option input[type="range"] {
       cursor: grab;
+      margin: 0 10px;
     }
 
     @media (max-width: 765px) {
@@ -439,6 +459,22 @@ function insertButton(buttonsBar) {
 function insertPopup() {
   if (!document.querySelector('#bestTube-popup')) {
 
+    // Función auxiliar para generar el HTML de cada toggle personalizado
+    const createToggleHtml = (id, label) => `
+      <div class="option">
+        <label>${label}</label>
+        <div id="${id}" class="toggle-container style-scope tp-yt-paper-toggle-button">
+          <div id="toggleBar" class="toggle-bar style-scope tp-yt-paper-toggle-button"></div>
+          <div id="toggleButton" class="toggle-button style-scope tp-yt-paper-toggle-button">
+            <tp-yt-paper-ripple id="ink" recenters="" class="circle toggle-ink style-scope tp-yt-paper-toggle-button">
+              <div id="background" class="style-scope tp-yt-paper-ripple" style="opacity: 0;"></div>
+              <div id="waves" class="style-scope tp-yt-paper-ripple"></div>
+            </tp-yt-paper-ripple>
+          </div>
+        </div>
+      </div>
+    `;
+
     const popup = document.createElement("div");
     popup.id = "bestTube-popup";
     popup.innerHTML = `
@@ -452,53 +488,18 @@ function insertPopup() {
       </div>
 
       <div id="bestTube-popup-options">
-        <div class="option">
-          <label for="videos-per-row">Videos per row</label>
+        <div class="option" style="justify-content: flex-start;">
+          <label for="videos-per-row" style="pointer-events: auto;">Videos per row</label>
           <input type="range" id="videos-per-row" min="0" max="10" value="0"/>
           <span id="videos-per-row-value">0</span>
         </div>
 
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-ads">
-            Remove Ads
-          </label>
-        </div>
-
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-members">
-            Remove Members
-          </label>
-        </div>
-
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-shorts">
-            Remove Shorts
-          </label>
-        </div>
-
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-news">
-            Remove News
-          </label>
-        </div>
-
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-recommended">
-            Remove Recommended
-          </label>
-        </div>
-
-        <div class="option">
-          <label>
-            <input type="checkbox" id="remove-super-thanks">
-            Remove Super Thanks
-          </label>
-        </div>
+        ${createToggleHtml('remove-ads', 'Remove Ads')}
+        ${createToggleHtml('remove-members', 'Remove Members')}
+        ${createToggleHtml('remove-shorts', 'Remove Shorts')}
+        ${createToggleHtml('remove-news', 'Remove News')}
+        ${createToggleHtml('remove-recommended', 'Remove Recommended')}
+        ${createToggleHtml('remove-super-thanks', 'Remove Super Thanks')}
       </div>`;
 
     document.body.appendChild(popup);
