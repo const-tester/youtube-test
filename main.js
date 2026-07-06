@@ -382,14 +382,52 @@ function insertStyles() {
       pointer-events: none;
     }
 
-    #bestTube-popup-options .option .toggle-container {
+    #bestTube-popup-options .option input[type="range"] {
+      cursor: grab;
+      margin: 0 10px;
+    }
+
+    /* ============================================================ */
+    /* TOGGLE SWITCH STYLES (ANIMATIONS & COLORS)                   */
+    /* ============================================================ */
+    #bestTube-popup-options .toggle-container {
+      position: relative;
+      width: 36px;
+      height: 14px;
       cursor: pointer;
       margin-left: 16px;
     }
 
-    #bestTube-popup-options .option input[type="range"] {
-      cursor: grab;
-      margin: 0 10px;
+    #bestTube-popup-options .toggle-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 7px;
+      background-color: #717171; /* Color apagado (por defecto) */
+      transition: background-color 0.3s ease;
+    }
+
+    #bestTube-popup-options .toggle-button {
+      position: absolute;
+      top: -3px;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #ffffff; /* Color de la bola */
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease;
+    }
+
+    /* Estado Activo (Checked) */
+    #bestTube-popup-options .toggle-container[checked] .toggle-bar {
+      background-color: #ff0000; /* Fondo animado a rojo */
+    }
+
+    #bestTube-popup-options .toggle-container[checked] .toggle-button {
+      transform: translateX(16px); /* Mueve la bola a la derecha */
     }
 
     @media (max-width: 765px) {
