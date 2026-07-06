@@ -502,7 +502,7 @@ function insertPopup() {
       <div class="option">
         <label>${label}</label>
         <div id="${id}" class="toggle-container style-scope tp-yt-paper-toggle-button">
-          <div id="toggleBar" class="toggle-bar style-scope tp-yt-paper-toggle-button"></div>
+          <div id="toggleBar" class="toggle-bar style-scope"></div>
           <div id="toggleButton" class="toggle-button style-scope tp-yt-paper-toggle-button">
             <tp-yt-paper-ripple id="ink" recenters="" class="circle toggle-ink style-scope tp-yt-paper-toggle-button">
               <div id="background" class="style-scope tp-yt-paper-ripple" style="opacity: 0;"></div>
