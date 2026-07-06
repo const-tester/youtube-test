@@ -497,17 +497,13 @@ function insertButton(buttonsBar) {
 function insertPopup() {
   if (!document.querySelector('#bestTube-popup')) {
 
-    // Función auxiliar para generar el HTML de cada toggle personalizado
+    // Función auxiliar para generar el HTML de cada toggle personalizado (sin etiquetas de YouTube)
     const createToggleHtml = (id, label) => `
       <div class="option">
         <label>${label}</label>
-        <div id="${id}" class="toggle-container style-scope tp-yt-paper-toggle-button">
-          <div id="toggleBar" class="toggle-bar style-scope"></div>
-          <div id="toggleButton" class="toggle-button style-scope tp-yt-paper-toggle-button">
-            <tp-yt-paper-ripple id="ink" recenters="" class="circle toggle-ink style-scope tp-yt-paper-toggle-button">
-              <div id="background" class="style-scope tp-yt-paper-ripple" style="opacity: 0;"></div>
-            </tp-yt-paper-ripple>
-          </div>
+        <div id="${id}" class="toggle-container">
+          <div class="toggle-bar"></div>
+          <div class="toggle-button"></div>
         </div>
       </div>
     `;
