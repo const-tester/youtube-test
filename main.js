@@ -74,7 +74,7 @@ const cssResponsiveRows = `
     margin-right: 0 !important;
   }
 
-  @media (min-width: 792px) {
+  @media (min-width: 530px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
       width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
