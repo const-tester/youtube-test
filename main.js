@@ -76,71 +76,71 @@ const cssResponsiveRows = `
 
   @media (min-width: 792px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 2)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (2 - 1) * (2 * 2)) !important;
+      width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 1060px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 3)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (3 - 1) * (3 * 2)) !important;
+      width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 1300px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 4)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (4 - 1) * (4 * 2)) !important;
+      width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 1650px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 5)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (5 - 1) * (5 * 2)) !important;
+      width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 2168px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 6)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (6 - 1) * (6 * 2)) !important;
+      width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 2416px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 7)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (7 - 1) * (7 * 2)) !important;
+      width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 2664px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 8)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (8 - 1) * (8 * 2)) !important;
+      width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 2912px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 9)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (9 - 1) * (9 * 2)) !important;
+      width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
   }
-  
+
   @media (min-width: 3160px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: calc((100 - 10)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (10 - 1) * (10 * 2)) !important;
+      width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
     }
