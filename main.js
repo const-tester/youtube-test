@@ -1,4 +1,4 @@
-const version = '0.2.0';
+const version = '0.2.1';
 
 // ============================================================
 //  OPTIONS CSS
@@ -82,7 +82,7 @@ const cssResponsiveRows = `
     }
   }
 
-  @media (min-width: 1060px) {
+  @media (min-width: 950px) {
     ytd-rich-item-renderer[rendered-from-rich-grid] {
       width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
       margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
