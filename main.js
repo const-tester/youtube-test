@@ -1,4 +1,4 @@
-const version = '0.1.0';
+const version = '0.2.0';
 
 // ============================================================
 //  OPTIONS CSS
@@ -64,6 +64,86 @@ const cssRemoveAds = `
   ytd-item-section-renderer:has(ytd-ad-slot-renderer),
   tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
     display: none !important;
+  }
+`;
+
+const cssResponsiveRows = `
+  ytd-rich-item-renderer[rendered-from-rich-grid] {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  @media (min-width: 792px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 2)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (2 - 1) * (2 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 1060px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 3)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (3 - 1) * (3 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 1300px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 4)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (4 - 1) * (4 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 1650px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 5)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (5 - 1) * (5 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 2168px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 6)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (6 - 1) * (6 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 2416px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 7)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (7 - 1) * (7 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 2664px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 8)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (8 - 1) * (8 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 2912px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 9)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (9 - 1) * (9 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
+  }
+  
+  @media (min-width: 3160px) {
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: calc((100 - 10)% - ((var(--ytd-rich-grid-item-margin) / 2)) / (10 - 1) * (10 * 2)) !important;
+      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+    }
   }
 `;
 
@@ -521,13 +601,8 @@ function insertPopup() {
       </div>
 
       <div id="bestTube-popup-options">
-        <div class="option" style="justify-content: flex-start;">
-          <label for="videos-per-row" style="pointer-events: auto;">Videos per row</label>
-          <input type="range" id="videos-per-row" min="0" max="10" value="0"/>
-          <span id="videos-per-row-value">0</span>
-        </div>
-
         ${createToggleHtml('remove-ads', 'Remove Ads')}
+        ${createToggleHtml('responsive-rows', 'Responsive Rows')}
         ${createToggleHtml('remove-members', 'Remove Members')}
         ${createToggleHtml('remove-shorts', 'Remove Shorts')}
         ${createToggleHtml('remove-news', 'Remove News')}
@@ -562,87 +637,13 @@ function insertPopup() {
     // INIT CHECKBOXES
     // ===========================
     initCheckboxToggle("remove-ads", "bestTube-remove-ads", cssRemoveAds);
+    initCheckboxToggle("responsive-rows", "bestTube-responsive-rows", cssResponsiveRows);
     initCheckboxToggle("remove-members", "bestTube-remove-members", cssRemoveMembers);
     initCheckboxToggle("remove-shorts", "bestTube-remove-shorts", cssRemoveShorts);
     initCheckboxToggle("remove-news", "bestTube-remove-news", cssRemoveNews);
     initCheckboxToggle("remove-recommended", "bestTube-remove-recommended", cssRemoveRecommended);
     initCheckboxToggle("remove-super-thanks", "bestTube-remove-super-thanks", cssRemoveSuperThanks);
-
-    // ===========================
-    // INIT VIDEOS PER ROW
-    // ===========================
-    initVideosPerRowControl(popup);
   }
-}
-
-// ============================================================
-//  VIDEOS PER ROW
-// ============================================================
-function initVideosPerRowControl(popup) {
-  const range = popup.querySelector("#videos-per-row");
-  const label = popup.querySelector("#videos-per-row-value");
-
-  const saved = localStorage.getItem("bestTube-videos-per-row");
-  if (saved !== null) {
-    range.value = saved;
-  }
-
-  const update = () => {
-    const rangeValue = parseInt(range.value, 10);
-
-    label.textContent = rangeValue === 0 ? "default" : rangeValue;
-
-    localStorage.setItem("bestTube-videos-per-row", rangeValue);
-
-    updateVideosPerRowStyles(rangeValue);
-  };
-
-  range.addEventListener("input", update);
-  update();
-}
-
-function updateVideosPerRowStyles(rangeValue) {
-  const styleId = "bestTube-videos-per-row";
-  let styleTag = document.getElementById(styleId);
-
-  if (rangeValue === 0) {
-    if (styleTag) styleTag.remove();
-    return;
-  }
-
-  if (!styleTag) {
-    styleTag = document.createElement("style");
-    styleTag.id = styleId;
-    document.head.appendChild(styleTag);
-  }
-
-  styleTag.textContent = generateVideosPerRowCSS(rangeValue);
-}
-
-function generateVideosPerRowCSS(rangeValue) {
-  if (rangeValue === 1) {
-    return `
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-      }
-    `;
-  }
-
-  const percent = 100 / rangeValue;
-  const divisor = rangeValue - 1;
-  const multiplier = rangeValue * 2;
-
-  const widthCalc = `calc(${percent}% - ((var(--ytd-rich-grid-item-margin) / 2)) / ${divisor} * ${multiplier})`;
-
-  return `
-    ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: ${widthCalc} !important;
-      margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-    }
-  `;
 }
 
 console.log(`BestTube v${version}`);
