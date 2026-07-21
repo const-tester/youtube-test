@@ -1,4 +1,4 @@
-const version = '0.2.1';
+const version = '0.3.0';
 
 // ============================================================
 //  OPTIONS CSS
@@ -303,6 +303,38 @@ function initCheckboxToggle(id, styleId, css) {
   apply();
 }
 
+function initPlayerAdsToggle() {
+  const id = "remove-player-ads";
+  const cb = document.getElementById(id);
+  if (!cb) return;
+  
+  let isChecked = false;
+  const saved = localStorage.getItem("bestTube-" + id);
+  if (saved !== null) {
+    isChecked = saved === "true";
+  }
+
+  const apply = () => {
+    localStorage.setItem("bestTube-" + id, isChecked);
+    if (isChecked) {
+      cb.setAttribute("checked", "");
+      // Disparamos un evento para que player.js inicie el proxy
+      document.dispatchEvent(new CustomEvent('BestTube-EnableProxy'));
+    } else {
+      cb.removeAttribute("checked");
+      // Disparamos un evento para que player.js restaure el reproductor normal
+      document.dispatchEvent(new CustomEvent('BestTube-DisableProxy'));
+    }
+  };
+
+  cb.addEventListener("click", () => {
+    isChecked = !isChecked;
+    apply();
+  });
+  
+  apply(); // Aplicar estado inicial
+}
+
 // ============================================================
 //  WAIT FOR CONTAINER
 // ============================================================
@@ -601,6 +633,7 @@ function insertPopup() {
       </div>
 
       <div id="bestTube-popup-options">
+        ${createToggleHtml('remove-player-ads', 'Remove Player Ads')}
         ${createToggleHtml('remove-ads', 'Remove Ads')}
         ${createToggleHtml('responsive-rows', 'Responsive Rows')}
         ${createToggleHtml('remove-members', 'Remove Members')}
@@ -636,6 +669,7 @@ function insertPopup() {
     // ===========================
     // INIT CHECKBOXES
     // ===========================
+    initPlayerAdsToggle();
     initCheckboxToggle("remove-ads", "bestTube-remove-ads", cssRemoveAds);
     initCheckboxToggle("responsive-rows", "bestTube-responsive-rows", cssResponsiveRows);
     initCheckboxToggle("remove-members", "bestTube-remove-members", cssRemoveMembers);
