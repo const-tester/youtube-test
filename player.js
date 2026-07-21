@@ -1,148 +1,187 @@
-console.log('2');
+console.log('3');
 
-let proxyWrapper = null;
-let proxyIframe = null;
-let isProxyEnabled = false;
-let currentVideoId = "";
+// ============================================================
+// LÓGICA DENTRO DEL IFRAME PROXY (WIKIMEDIA)
+// ============================================================
+if (window.location.href.indexOf("goodTubeProxy=1") !== -1) {
+    
+    // 1. Ocultamos toda la página normal de Wikipedia e inyectamos estilos para nuestro reproductor
+    const style = document.createElement('style');
+    style.textContent = `
+        body *:not(#goodTube_youtube_iframe) { display: none !important; opacity: 0 !important; visibility: hidden !important; }
+        body { background: transparent !important; overflow: hidden !important; margin: 0; padding: 0; }
+        #goodTube_youtube_iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 999999; }
+    `;
+    document.documentElement.appendChild(style);
 
-// Escuchamos los eventos enviados desde main.js
-document.addEventListener('BestTube-EnableProxy', () => {
-    isProxyEnabled = true;
-    initProxyPlayer();
-});
+    // 2. Escuchamos el mensaje desde la página de YouTube para cargar el video
+    window.addEventListener("message", (event) => {
+        if (typeof event.data === "string" && event.data.startsWith("goodTube_src_")) {
+            const embedUrl = event.data.replace("goodTube_src_", "");
+            let iframe = document.getElementById("goodTube_youtube_iframe");
+            
+            if (!iframe) {
+                iframe = document.createElement("iframe");
+                iframe.id = "goodTube_youtube_iframe";
+                iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+                iframe.setAttribute("allowfullscreen", "true");
+                document.body.appendChild(iframe);
+            }
+            // Cargamos el embed de YouTube limpio dentro del proxy
+            iframe.src = embedUrl;
+        }
+    });
 
-document.addEventListener('BestTube-DisableProxy', () => {
-    isProxyEnabled = false;
-    removeProxyPlayer();
-});
+    // 3. ¡LA CLAVE!: Avisamos a YouTube de que el proxy ya ha cargado y está listo para recibir el link
+    window.top.postMessage("goodTube_proxy_ready", "*");
 
-// Función para extraer la ID del video de la URL
-function getVideoId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('v');
-}
+} 
+// ============================================================
+// LÓGICA EN LA PÁGINA PRINCIPAL (YOUTUBE)
+// ============================================================
+else {
 
-// Inicializa el reproductor falso (Proxy)
-function initProxyPlayer() {
-    currentVideoId = getVideoId();
-    if (!isProxyEnabled || !currentVideoId || window.location.href.indexOf('/watch') === -1) return;
+    let proxyWrapper = null;
+    let proxyIframe = null;
+    let isProxyEnabled = false;
+    let currentVideoId = "";
 
-    const nativePlayer = document.getElementById("movie_player");
-    const videoElement = document.querySelector("#movie_player video");
+    document.addEventListener('BestTube-EnableProxy', () => {
+        isProxyEnabled = true;
+        initProxyPlayer();
+    });
 
-    // Silenciamos y pausamos el reproductor original
-    if (nativePlayer && typeof nativePlayer.pauseVideo === "function") {
-        nativePlayer.pauseVideo();
-        nativePlayer.mute();
-    }
-    if (videoElement) {
-        videoElement.muted = true;
-        videoElement.volume = 0;
-        videoElement.pause();
-    }
+    document.addEventListener('BestTube-DisableProxy', () => {
+        isProxyEnabled = false;
+        removeProxyPlayer();
+    });
 
-    if (!proxyWrapper) {
-        // Creamos el contenedor que flotará sobre el reproductor original
-        proxyWrapper = document.createElement("div");
-        proxyWrapper.id = "bestTube_playerWrapper";
-        Object.assign(proxyWrapper.style, {
-            position: "absolute",
-            zIndex: "999999", // Z-index absurdamente alto para que nada de YouTube lo tape
-            backgroundColor: "#000000",
-            borderRadius: "12px",
-            overflow: "hidden"
-        });
-
-        // Creamos el iframe utilizando el proxy
-        proxyIframe = document.createElement("iframe");
-        proxyIframe.setAttribute("width", "100%");
-        proxyIframe.setAttribute("height", "100%");
-        proxyIframe.setAttribute("frameborder", "0");
-        proxyIframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
-        proxyIframe.setAttribute("allowfullscreen", "true");
-        proxyIframe.src = "https://wikimedia.org?goodTubeProxy=1"; 
-
-        proxyWrapper.appendChild(proxyIframe);
-        
-        // ¡LA CLAVE ESTÁ AQUÍ! Lo inyectamos en el body, no en el reproductor de YouTube
-        document.body.appendChild(proxyWrapper);
-    } else {
-        proxyWrapper.style.display = "block";
-    }
-
-    // Calculamos la posición inicial
-    updateProxyPosition();
-
-    // Le enviamos la ID del video real al Iframe
-    setTimeout(() => {
-        if (currentVideoId && proxyIframe && proxyIframe.contentWindow) {
+    // 4. Escuchamos el "Aviso de listo" desde el iframe proxy para enviarle la URL
+    window.addEventListener("message", (event) => {
+        if (event.data === "goodTube_proxy_ready" && isProxyEnabled && currentVideoId && proxyIframe) {
             const embedUrl = `https://www.youtube.com/embed/${currentVideoId}?goodTubeEmbed=1&autoplay=1`;
             proxyIframe.contentWindow.postMessage("goodTube_src_" + embedUrl, "*");
         }
-    }, 1000); 
-}
+    });
 
-// Función para calcar el tamaño y posición del reproductor original
-function updateProxyPosition() {
-    if (!isProxyEnabled || !proxyWrapper) return;
-    
-    // Buscamos el contenedor nativo
-    let targetElement = document.querySelector("#ytd-player") || document.querySelector("#player");
-    
-    if (targetElement && targetElement.offsetHeight > 0) {
-        let rect = targetElement.getBoundingClientRect();
-        
-        // Asignamos las medidas para que encaje perfectamente encima
-        proxyWrapper.style.top = (rect.top + window.scrollY) + "px";
-        proxyWrapper.style.left = (rect.left + window.scrollX) + "px";
-        proxyWrapper.style.width = rect.width + "px";
-        proxyWrapper.style.height = rect.height + "px";
+    function getVideoId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('v');
     }
-}
 
-// Elimina y restaura el estado natural del reproductor de YouTube
-function removeProxyPlayer() {
-    if (proxyWrapper) {
-        proxyWrapper.style.display = "none";
-    }
-    
-    const nativePlayer = document.getElementById("movie_player");
-    const videoElement = document.querySelector("#movie_player video");
-    
-    if (nativePlayer && typeof nativePlayer.unMute === "function") {
-        nativePlayer.unMute();
-    }
-    if (videoElement) {
-        videoElement.muted = false;
-        videoElement.volume = 1;
-    }
-}
+    function initProxyPlayer() {
+        currentVideoId = getVideoId();
+        if (!isProxyEnabled || !currentVideoId || window.location.href.indexOf('/watch') === -1) return;
 
-// YouTube cambia de video sin recargar la página (SPA)
-window.addEventListener('yt-navigate-finish', () => {
-    if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
-        if (proxyWrapper) {
-            removeProxyPlayer();
-            setTimeout(initProxyPlayer, 500); 
-        } else {
-            initProxyPlayer();
-        }
-    } else {
-        removeProxyPlayer();
-    }
-});
-
-// Bucle crítico: Mantiene la posición actualizada (si haces scroll o redimensionas) 
-// y se asegura de que el video original siga mudo y pausado.
-setInterval(() => {
-    if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
-        updateProxyPosition();
-        
+        // Identificamos el contenedor nativo
+        const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
+        const nativePlayer = document.getElementById("movie_player");
         const videoElement = document.querySelector("#movie_player video");
-        if (videoElement && (!videoElement.muted || videoElement.volume > 0 || !videoElement.paused)) {
+
+        if (nativePlayer && typeof nativePlayer.pauseVideo === "function") {
+            nativePlayer.pauseVideo();
+            nativePlayer.mute();
+        }
+        if (videoElement) {
             videoElement.muted = true;
             videoElement.volume = 0;
             videoElement.pause();
         }
+
+        if (!proxyWrapper) {
+            proxyWrapper = document.createElement("div");
+            proxyWrapper.id = "bestTube_playerWrapper";
+            Object.assign(proxyWrapper.style, {
+                width: "100%",
+                height: "100%",
+                minHeight: "360px",
+                aspectRatio: "16 / 9", // Mantenemos la proporción correcta al ocupar el espacio
+                backgroundColor: "#000000",
+                borderRadius: "12px",
+                overflow: "hidden",
+                position: "relative", // Ya no es absolute, se adapta al layout de YouTube
+                zIndex: "999"
+            });
+
+            proxyIframe = document.createElement("iframe");
+            proxyIframe.setAttribute("width", "100%");
+            proxyIframe.setAttribute("height", "100%");
+            proxyIframe.setAttribute("frameborder", "0");
+            proxyIframe.setAttribute("sandbox", "allow-top-navigation allow-top-navigation-by-user-activation allow-scripts allow-same-origin allow-forms allow-popups");
+            proxyIframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+            proxyIframe.setAttribute("allowfullscreen", "true");
+            
+            // Usamos www explícitamente para evitar redirecciones
+            proxyIframe.src = "https://www.wikimedia.org/?goodTubeProxy=1"; 
+
+            proxyWrapper.appendChild(proxyIframe);
+            
+            if (nativePlayerContainer && nativePlayerContainer.parentNode) {
+                // Lo insertamos como hermano, justo antes del reproductor nativo
+                nativePlayerContainer.parentNode.insertBefore(proxyWrapper, nativePlayerContainer);
+            }
+        } else {
+            proxyWrapper.style.display = "block";
+        }
+
+        // Ocultamos el reproductor original con display: none !important
+        if (nativePlayerContainer) {
+            nativePlayerContainer.style.setProperty("display", "none", "important");
+        }
     }
-}, 100); // Reducido a 100ms para que la adaptación visual al redimensionar sea fluida
+
+    function removeProxyPlayer() {
+        if (proxyWrapper) {
+            proxyWrapper.style.display = "none";
+            if(proxyIframe) proxyIframe.src = "about:blank"; // Forzamos apagado del audio iframe
+        }
+        
+        const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
+        if (nativePlayerContainer) {
+            nativePlayerContainer.style.removeProperty("display"); // Restauramos el reproductor original
+        }
+
+        const nativePlayer = document.getElementById("movie_player");
+        const videoElement = document.querySelector("#movie_player video");
+        
+        if (nativePlayer && typeof nativePlayer.unMute === "function") {
+            nativePlayer.unMute();
+        }
+        if (videoElement) {
+            videoElement.muted = false;
+            videoElement.volume = 1;
+        }
+    }
+
+    window.addEventListener('yt-navigate-finish', () => {
+        if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
+            if (proxyWrapper) {
+                removeProxyPlayer();
+                setTimeout(initProxyPlayer, 500); 
+            } else {
+                initProxyPlayer();
+            }
+        } else {
+            removeProxyPlayer();
+        }
+    });
+
+    setInterval(() => {
+        if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
+            const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
+            
+            // Aseguramos de que el contenedor de YouTube siga en display: none
+            if (nativePlayerContainer && nativePlayerContainer.style.display !== "none") {
+                nativePlayerContainer.style.setProperty("display", "none", "important");
+            }
+
+            const videoElement = document.querySelector("#movie_player video");
+            if (videoElement && (!videoElement.muted || videoElement.volume > 0 || !videoElement.paused)) {
+                videoElement.muted = true;
+                videoElement.volume = 0;
+                videoElement.pause();
+            }
+        }
+    }, 100);
+
+}
