@@ -1,4 +1,5 @@
-const version = '0.3.0';
+const version = '0.3.1';
+const PLAYER_FILE = 'https://raw.githubusercontent.com/const-tester/youtube-test/refs/heads/main/player.js';
 
 // ============================================================
 //  OPTIONS CSS
@@ -257,9 +258,34 @@ const bestTubeStyleManager = {
 };
 
 // ============================================================
+//  LOAD PLAYER.JS
+// ============================================================
+function loadPlayerFile() {
+  // Evitamos cargarlo dos veces
+  if (window.bestTubePlayerLoaded) return;
+  window.bestTubePlayerLoaded = true;
+
+  fetch(PLAYER_FILE, { cache: 'no-store' })
+    .then(r => {
+      if (!r.ok) throw new Error('[BestTube] Error cargando player.js remoto');
+      return r.text();
+    })
+    .then(code => {
+      const script = document.createElement('script');
+      script.textContent = code;
+      document.documentElement.appendChild(script);
+      console.log('%c✔ BestTube: Playe cargado correctamente', 'background: #0a0; color: #fff; padding: 4px; border-radius: 8px;');
+    })
+    .catch(err => {
+      console.error('[BestTube] No se pudo cargar player.js', err);
+    });
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 insertStyles();
+loadPlayerFile();
 
 waitForBody(() => {
   insertPopup();
@@ -332,7 +358,7 @@ function initPlayerAdsToggle() {
     apply();
   });
   
-  apply(); // Aplicar estado inicial
+  setTimeout(apply, 1000);
 }
 
 // ============================================================
