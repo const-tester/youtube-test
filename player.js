@@ -1,11 +1,11 @@
-console.log('3');
+console.log('4');
 
 // ============================================================
 // LÓGICA DENTRO DEL IFRAME PROXY (WIKIMEDIA)
 // ============================================================
 if (window.location.href.indexOf("goodTubeProxy=1") !== -1) {
     
-    // 1. Ocultamos toda la página normal de Wikipedia e inyectamos estilos para nuestro reproductor
+    // Ocultamos todo lo de Wikipedia y dejamos que el iframe ocupe el 100%
     const style = document.createElement('style');
     style.textContent = `
         body *:not(#goodTube_youtube_iframe) { display: none !important; opacity: 0 !important; visibility: hidden !important; }
@@ -14,7 +14,7 @@ if (window.location.href.indexOf("goodTubeProxy=1") !== -1) {
     `;
     document.documentElement.appendChild(style);
 
-    // 2. Escuchamos el mensaje desde la página de YouTube para cargar el video
+    // Extraemos el parámetro de vídeo que nos envíe la URL o un mensaje
     window.addEventListener("message", (event) => {
         if (typeof event.data === "string" && event.data.startsWith("goodTube_src_")) {
             const embedUrl = event.data.replace("goodTube_src_", "");
@@ -27,13 +27,18 @@ if (window.location.href.indexOf("goodTubeProxy=1") !== -1) {
                 iframe.setAttribute("allowfullscreen", "true");
                 document.body.appendChild(iframe);
             }
-            // Cargamos el embed de YouTube limpio dentro del proxy
-            iframe.src = embedUrl;
+            if (iframe.src !== embedUrl) {
+                iframe.src = embedUrl;
+            }
         }
     });
 
-    // 3. ¡LA CLAVE!: Avisamos a YouTube de que el proxy ya ha cargado y está listo para recibir el link
-    window.top.postMessage("goodTube_proxy_ready", "*");
+    // Notificamos que el proxy está listo
+    window.addEventListener("DOMContentLoaded", () => {
+        if (window.top !== window.self) {
+            window.top.postMessage("goodTube_proxy_ready", "*");
+        }
+    });
 
 } 
 // ============================================================
@@ -56,11 +61,9 @@ else {
         removeProxyPlayer();
     });
 
-    // 4. Escuchamos el "Aviso de listo" desde el iframe proxy para enviarle la URL
     window.addEventListener("message", (event) => {
         if (event.data === "goodTube_proxy_ready" && isProxyEnabled && currentVideoId && proxyIframe) {
-            const embedUrl = `https://www.youtube.com/embed/${currentVideoId}?goodTubeEmbed=1&autoplay=1`;
-            proxyIframe.contentWindow.postMessage("goodTube_src_" + embedUrl, "*");
+            sendVideoToProxy();
         }
     });
 
@@ -69,11 +72,16 @@ else {
         return urlParams.get('v');
     }
 
+    function sendVideoToProxy() {
+        if (!currentVideoId || !proxyIframe || !proxyIframe.contentWindow) return;
+        const embedUrl = `https://www.youtube.com/embed/${currentVideoId}?goodTubeEmbed=1&autoplay=1`;
+        proxyIframe.contentWindow.postMessage("goodTube_src_" + embedUrl, "*");
+    }
+
     function initProxyPlayer() {
         currentVideoId = getVideoId();
         if (!isProxyEnabled || !currentVideoId || window.location.href.indexOf('/watch') === -1) return;
 
-        // Identificamos el contenedor nativo
         const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
         const nativePlayer = document.getElementById("movie_player");
         const videoElement = document.querySelector("#movie_player video");
@@ -95,11 +103,11 @@ else {
                 width: "100%",
                 height: "100%",
                 minHeight: "360px",
-                aspectRatio: "16 / 9", // Mantenemos la proporción correcta al ocupar el espacio
+                aspectRatio: "16 / 9",
                 backgroundColor: "#000000",
                 borderRadius: "12px",
                 overflow: "hidden",
-                position: "relative", // Ya no es absolute, se adapta al layout de YouTube
+                position: "relative",
                 zIndex: "999"
             });
 
@@ -111,34 +119,37 @@ else {
             proxyIframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
             proxyIframe.setAttribute("allowfullscreen", "true");
             
-            // Usamos www explícitamente para evitar redirecciones
+            // Pasamos la URL del proxy de Wikimedia apuntando limpiamente
             proxyIframe.src = "https://www.wikimedia.org/?goodTubeProxy=1"; 
 
             proxyWrapper.appendChild(proxyIframe);
             
             if (nativePlayerContainer && nativePlayerContainer.parentNode) {
-                // Lo insertamos como hermano, justo antes del reproductor nativo
+                // Se crea justo antes de #player (siendo su hermano)
                 nativePlayerContainer.parentNode.insertBefore(proxyWrapper, nativePlayerContainer);
             }
         } else {
             proxyWrapper.style.display = "block";
         }
 
-        // Ocultamos el reproductor original con display: none !important
+        // Forzamos el display: none en el reproductor original de YouTube
         if (nativePlayerContainer) {
             nativePlayerContainer.style.setProperty("display", "none", "important");
         }
+
+        // Intentamos enviar el vídeo de inmediato por si el iframe ya cargó
+        setTimeout(sendVideoToProxy, 500);
     }
 
     function removeProxyPlayer() {
         if (proxyWrapper) {
             proxyWrapper.style.display = "none";
-            if(proxyIframe) proxyIframe.src = "about:blank"; // Forzamos apagado del audio iframe
+            if (proxyIframe) proxyIframe.src = "about:blank"; 
         }
         
         const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
         if (nativePlayerContainer) {
-            nativePlayerContainer.style.removeProperty("display"); // Restauramos el reproductor original
+            nativePlayerContainer.style.removeProperty("display");
         }
 
         const nativePlayer = document.getElementById("movie_player");
@@ -155,9 +166,10 @@ else {
 
     window.addEventListener('yt-navigate-finish', () => {
         if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
+            currentVideoId = getVideoId();
             if (proxyWrapper) {
-                removeProxyPlayer();
-                setTimeout(initProxyPlayer, 500); 
+                proxyWrapper.style.display = "block";
+                sendVideoToProxy();
             } else {
                 initProxyPlayer();
             }
@@ -170,7 +182,6 @@ else {
         if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
             const nativePlayerContainer = document.querySelector("#ytd-player") || document.querySelector("#player");
             
-            // Aseguramos de que el contenedor de YouTube siga en display: none
             if (nativePlayerContainer && nativePlayerContainer.style.display !== "none") {
                 nativePlayerContainer.style.setProperty("display", "none", "important");
             }
