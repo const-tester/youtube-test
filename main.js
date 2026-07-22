@@ -453,7 +453,7 @@ function insertStyles() {
       display: none;
       z-index: 99999;
       top: 56px;
-      right: 230px;
+      right: 224px;
       outline: none;
       box-sizing: border-box;
       width: 341px;
