@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Proxy Player</title>
+    <style>
+      body {
+        background: #000;
+        overflow: hidden; margin: 0; padding: 0;
+      }
+      
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Escuchar el mensaje desde la página principal de YouTube
+      window.addEventListener("message", (event) => {
+        if (typeof event.data === "string" && event.data.startsWith("bestTube_src_")) {
+          const embedUrl = event.data.replace("bestTube_src_", "");
+          let iframe = document.getElementById("bestTube_youtube_iframe");
+          
+          // Crear el iframe de YouTube si no existe
+          if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.id = "bestTube_youtube_iframe";
+            iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+            iframe.setAttribute("allowfullscreen", "true");
+            document.body.appendChild(iframe);
+          }
+          
+          // Actualizar la URL si es diferente
+          if (iframe.src !== embedUrl) {
+            iframe.src = embedUrl;
+          }
+        }
+      });
+      
+      // Avisar a YouTube de que el proxy HTML ya está cargado y listo
+      window.top.postMessage("bestTube_proxy_ready", "*");
+    </script>
+  </body>
+</html>
