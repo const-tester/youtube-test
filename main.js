@@ -1,3 +1,10 @@
+// Evitar ejecución múltiple si ya está activo en la página
+if (window.bestTubeInitialized) {
+    console.log("[BestTube] Ya estaba cargado, omitiendo reinicio.");
+    return;
+}
+window.bestTubeInitialized = true;
+
 const version = '0.3.1';
 const PLAYER_FILE = 'https://raw.githubusercontent.com/const-tester/youtube-test/refs/heads/main/player.js';
 
