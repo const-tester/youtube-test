@@ -1,4 +1,4 @@
-console.log('6');
+console.log('7');
 
 // ============================================================
 // LÓGICA DENTRO DEL IFRAME PROXY (WIKIMEDIA)
@@ -32,7 +32,8 @@ if (window.location.href.indexOf("goodTubeProxy=1") !== -1) {
         }
     });
 
-    // Avisamos a YouTube de que el proxy ya ha cargado y está listo
+    // Avisamos a YouTube de que el proxy ya ha cargado (al inyectar y al cargar el DOM por seguridad)
+    window.top.postMessage("goodTube_proxy_ready", "*");
     window.addEventListener("DOMContentLoaded", () => {
         if (window.top !== window.self) {
             window.top.postMessage("goodTube_proxy_ready", "*");
@@ -50,8 +51,8 @@ else {
         const style = document.createElement("style");
         style.id = "bestTube-proxy-css";
         style.textContent = `
-            /* Ocultamos los hijos originales de ytd-player, dejando solo nuestro proxy */
-            body.bestTube-proxy-active ytd-player#ytd-player > *:not(#bestTube_playerWrapper) {
+            body.bestTube-proxy-active ytd-player#ytd-player > *:not(#bestTube_playerWrapper),
+            body.bestTube-proxy-active ytd-player > *:not(#bestTube_playerWrapper) {
                 display: none !important;
             }
         `;
@@ -94,8 +95,10 @@ else {
         currentVideoId = getVideoId();
         if (!isProxyEnabled || !currentVideoId || window.location.href.indexOf('/watch') === -1) return;
 
-        // Utilizamos ytd-player porque es el contenedor más preciso que controla el tamaño
-        const ytdPlayer = document.querySelector("ytd-player#ytd-player");
+        // Buscamos el contenedor, si aún no existe abortamos y el setInterval lo volverá a intentar luego
+        const ytdPlayer = document.querySelector("ytd-player#ytd-player") || document.querySelector("ytd-player");
+        if (!ytdPlayer) return; 
+
         const nativePlayer = document.getElementById("movie_player");
         const videoElement = document.querySelector("#movie_player video");
 
@@ -109,7 +112,6 @@ else {
             videoElement.pause();
         }
 
-        // Activamos la clase en el body para ocultar los hijos nativos con nuestro CSS
         document.body.classList.add("bestTube-proxy-active");
 
         if (!proxyWrapper) {
@@ -138,19 +140,19 @@ else {
 
             proxyWrapper.appendChild(proxyIframe);
             
-            if (ytdPlayer) {
-                ytdPlayer.style.position = "relative"; // Asegura que absolute funcione bien
-                ytdPlayer.appendChild(proxyWrapper); // Se incrusta como hijo
-            }
+            ytdPlayer.style.position = "relative"; 
+            ytdPlayer.appendChild(proxyWrapper);
+            
+            setTimeout(sendVideoToProxy, 500);
         } else {
             proxyWrapper.style.display = "block";
-            // Por si YouTube reconstruye el DOM, nos aseguramos de que siga siendo hijo
-            if (ytdPlayer && !ytdPlayer.contains(proxyWrapper)) {
+            // Aseguramos que siga estando incrustado correctamente
+            if (!ytdPlayer.contains(proxyWrapper)) {
+                ytdPlayer.style.position = "relative";
                 ytdPlayer.appendChild(proxyWrapper);
+                setTimeout(sendVideoToProxy, 500);
             }
         }
-
-        setTimeout(sendVideoToProxy, 500);
     }
 
     function removeProxyPlayer() {
@@ -175,14 +177,14 @@ else {
 
     window.addEventListener('yt-navigate-finish', () => {
         if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
-            currentVideoId = getVideoId();
-            if (proxyWrapper) {
-                proxyWrapper.style.display = "block";
-                document.body.classList.add("bestTube-proxy-active");
-                sendVideoToProxy();
-            } else {
-                initProxyPlayer();
+            const newVideoId = getVideoId();
+            if (currentVideoId !== newVideoId) {
+                currentVideoId = newVideoId;
+                if (proxyWrapper && document.getElementById("bestTube_playerWrapper")) {
+                    sendVideoToProxy(); // Si cambiamos de vídeo, enviamos el nuevo enlace
+                }
             }
+            initProxyPlayer();
         } else {
             removeProxyPlayer();
         }
@@ -191,6 +193,11 @@ else {
     setInterval(() => {
         if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
             document.body.classList.add("bestTube-proxy-active");
+            
+            // Comprobación de seguridad: Si no está en la página, intentamos ponerlo
+            if (!document.getElementById("bestTube_playerWrapper")) {
+                initProxyPlayer();
+            }
 
             const videoElement = document.querySelector("#movie_player video");
             if (videoElement && (!videoElement.muted || videoElement.volume > 0 || !videoElement.paused)) {
