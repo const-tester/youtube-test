@@ -1,9 +1,10 @@
-console.log('player v2');
+console.log('pl. v2');
 
 // ============================================================
-// LÓGICA EN LA PÁGINA PRINCIPAL (YOUTUBE)
+// LÓGICA PRINCIPAL (YOUTUBE)
 // ============================================================
 
+// 1. Inyectamos una regla CSS para ocultar los hijos nativos del reproductor limpiamente
 if (!document.getElementById("bestTube-proxy-css")) {
     const style = document.createElement("style");
     style.id = "bestTube-proxy-css";
@@ -21,6 +22,7 @@ let proxyIframe = null;
 let isProxyEnabled = false;
 let currentVideoId = "";
 
+// Eventos personalizados para activar/desactivar la extensión
 document.addEventListener('BestTube-EnableProxy', () => {
     isProxyEnabled = true;
     initProxyPlayer();
@@ -31,6 +33,7 @@ document.addEventListener('BestTube-DisableProxy', () => {
     removeProxyPlayer();
 });
 
+// Escuchamos el mensaje de nuestro propio iframe de Data URI
 window.addEventListener("message", (event) => {
     if (event.data === "bestTube_proxy_ready" && isProxyEnabled && currentVideoId && proxyIframe) {
         sendVideoToProxy();
@@ -52,9 +55,11 @@ function initProxyPlayer() {
     currentVideoId = getVideoId();
     if (!isProxyEnabled || !currentVideoId || window.location.href.indexOf('/watch') === -1) return;
 
+    // Buscamos el contenedor, si aún no existe abortamos y el setInterval lo volverá a intentar luego
     const ytdPlayer = document.querySelector("ytd-player#ytd-player") || document.querySelector("ytd-player");
     if (!ytdPlayer) return; 
 
+    // Pausamos y silenciamos el reproductor original de YouTube
     const nativePlayer = document.getElementById("movie_player");
     const videoElement = document.querySelector("#movie_player video");
 
@@ -93,8 +98,42 @@ function initProxyPlayer() {
         proxyIframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
         proxyIframe.setAttribute("allowfullscreen", "true");
         
-        // AQUÍ ES DONDE APUNTAS A TU GITHUB PAGES
-        proxyIframe.src = "https://const-tester.github.io/youtube-test/player.html"; 
+        const proxyHTML = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <style>
+                body { background: #000; overflow: hidden; margin: 0; padding: 0; }
+                iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
+            </style>
+        </head>
+        <body>
+            <script>
+                window.addEventListener("message", (event) => {
+                    if (typeof event.data === "string" && event.data.startsWith("bestTube_src_")) {
+                        const embedUrl = event.data.replace("bestTube_src_", "");
+                        let iframe = document.getElementById("bestTube_youtube_iframe");
+                        if (!iframe) {
+                            iframe = document.createElement("iframe");
+                            iframe.id = "bestTube_youtube_iframe";
+                            iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+                            iframe.setAttribute("allowfullscreen", "true");
+                            document.body.appendChild(iframe);
+                        }
+                        if (iframe.src !== embedUrl) {
+                            iframe.src = embedUrl;
+                        }
+                    }
+                });
+                // Avisamos al script padre que ya estamos listos
+                window.top.postMessage("bestTube_proxy_ready", "*");
+            </script>
+        </body>
+        </html>
+        `;
+
+        // Generamos la URL codificando el HTML directamente
+        proxyIframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(proxyHTML);
 
         proxyWrapper.appendChild(proxyIframe);
         
@@ -104,6 +143,7 @@ function initProxyPlayer() {
         setTimeout(sendVideoToProxy, 500);
     } else {
         proxyWrapper.style.display = "block";
+        // Aseguramos que siga estando incrustado correctamente
         if (!ytdPlayer.contains(proxyWrapper)) {
             ytdPlayer.style.position = "relative";
             ytdPlayer.appendChild(proxyWrapper);
@@ -132,13 +172,14 @@ function removeProxyPlayer() {
     }
 }
 
+// Controlar navegación interna tipo SPA de YouTube
 window.addEventListener('yt-navigate-finish', () => {
     if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
         const newVideoId = getVideoId();
         if (currentVideoId !== newVideoId) {
             currentVideoId = newVideoId;
             if (proxyWrapper && document.getElementById("bestTube_playerWrapper")) {
-                sendVideoToProxy();
+                sendVideoToProxy(); // Si cambiamos de vídeo, enviamos el nuevo enlace
             }
         }
         initProxyPlayer();
@@ -147,10 +188,12 @@ window.addEventListener('yt-navigate-finish', () => {
     }
 });
 
+// Bucle de seguridad para mantener el reproductor original a raya
 setInterval(() => {
     if (isProxyEnabled && window.location.href.indexOf('/watch') !== -1) {
         document.body.classList.add("bestTube-proxy-active");
         
+        // Comprobación de seguridad: Si no está en la página, intentamos ponerlo
         if (!document.getElementById("bestTube_playerWrapper")) {
             initProxyPlayer();
         }
