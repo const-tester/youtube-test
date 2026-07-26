@@ -198,6 +198,9 @@ const cssRemoveNews = `
 `;
 
 const cssRemoveRecommended = `
+  /* Destacado de YouTube en vídeo */
+  yt-lockup-view-model:has(.ytBadgeShapeHost.ytBadgeShapePromoted.ytBadgeShapeTypography),
+
   /* ¿Te gusta esta recomendación? */
   lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
 
