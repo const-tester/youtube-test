@@ -151,11 +151,14 @@ const cssResponsiveRows = `
 const cssRemoveMembers = `
   /* Join button on video */
   #below ytd-watch-metadata #top-row #owner ytd-video-owner-renderer #sponsor-button,
+
+  /* "0€ el primer mes" on channel */
+  ytd-browse #header #page-header yt-attribution-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
   
-  /* Join button on channel */
+  /* "Unirme" on channel */
   #page-header-container #page-header .yt-page-header-view-model__page-header-headline-info yt-flexible-actions-view-model .ytFlexibleActionsViewModelAction:not(:has(yt-subscribe-button-view-model)):not(:has(a[href*="community"])),
   
-  /* Our members on channel */
+  /* "Nuestros miembros" on channel */
   ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
   
   /* Members first tag on video description */
