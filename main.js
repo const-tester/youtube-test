@@ -156,7 +156,7 @@ const cssRemoveMembers = `
   ytd-browse #header #page-header yt-attribution-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
   
   /* "Unirme" on channel */
-  #page-header-container #page-header .yt-page-header-view-model__page-header-headline-info yt-flexible-actions-view-model .ytFlexibleActionsViewModelAction:not(:has(yt-subscribe-button-view-model)):not(:has(a[href*="community"])),
+  ytd-browse #header #page-header yt-flexible-actions-view-model [class*='ytFlexibleActionsViewModelAction']:has(path[d^='M12 23c6.075 0 11-4.925 11-11S18.075']),
   
   /* "Nuestros miembros" on channel */
   ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
