@@ -160,8 +160,12 @@ const cssRemoveMembers = `
   
   /* "Nuestros miembros" on channel */
   ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
+
+  /* "Vídeos exclusivos para miembros" on channel */
+  ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
+  ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
   
-  /* Members first tag on video description */
+  /* Etiqueta "Miembros primero" on video description */
   #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#'],
   #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#']+span,
   
