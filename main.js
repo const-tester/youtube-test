@@ -1,8 +1,32 @@
 (function () {
-  const version = '0.3.6';
+  const version = '0.3.7';
 
   // ============================================================
-  //  1. MODO PROXY WIKIMEDIA
+  //  1. MODO YOUTUBE EMBED
+  // ============================================================
+  if (window.location.pathname.startsWith('/embed/')) {
+    const injectEmbedCSS = () => {
+      if (!document.head) {
+        requestAnimationFrame(injectEmbedCSS);
+        return;
+      }
+      const style = document.createElement("style");
+      style.id = "bestTube-embed-styles";
+      style.textContent = `
+        .embedded-player-video-details,
+        #embedded-player-video-details {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(style);
+    };
+    injectEmbedCSS();
+    
+    return;
+  }
+
+  // ============================================================
+  //  2. MODO PROXY WIKIMEDIA
   // ============================================================
   if (window.location.hostname.includes('wikimedia.org')) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -37,7 +61,7 @@
   }
 
   // ============================================================
-  //  2. MODO YOUTUBE
+  //  3. MODO YOUTUBE PRINCIPAL
   // ============================================================
   const cssRemoveAds = `
     .ytd-search ytd-shelf-renderer,
@@ -363,7 +387,7 @@
   //  REPRODUCTOR PERSONALIZADO (INYECTA EL IFRAME DE WIKIMEDIA)
   // ============================================================
   
-  // Novedad: Helper para silenciar el video original
+  // Helper para silenciar el video original
   function setOriginalVideoMute(mute) {
     const video = document.querySelector('#movie_player video');
     const player = document.querySelector('#movie_player');
