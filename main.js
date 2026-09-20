@@ -1,4 +1,4 @@
-const version = '0.3.7';
+const version = '0.3.8';
 
 // ============================================================
 //  1. MODO YOUTUBE EMBED
@@ -12,8 +12,7 @@ if (window.location.pathname.startsWith('/embed/')) {
     const style = document.createElement("style");
     style.id = "bestTube-embed-styles";
     style.textContent = `
-      .embedded-player-video-details,
-      #embedded-player-video-details {
+      embedded-player-video-details {
         display: none !important;
       }
     `;
