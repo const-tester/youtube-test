@@ -13,7 +13,8 @@
       const style = document.createElement('style');
       style.id = 'bestTube-embed-styles';
       style.textContent = `
-        embedded-player-video-details {
+        [id*='player'] embedded-player-video-details,
+        [id*='player'] .fullscreen-action-menu {
           display: none !important;
         }
       `;
