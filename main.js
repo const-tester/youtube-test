@@ -1,4 +1,4 @@
-const version = '0.3.1';
+const version = '0.3.3';
 
 // ============================================================
 //  OPTIONS CSS
@@ -675,14 +675,13 @@ function insertPopup() {
 // ============================================================
 //  CUSTOM PLAYER FUNCTIONALITY
 // ============================================================
-const PLAYER_HTML_URL = 'https://raw.githubusercontent.com/const-tester/youtube-test/refs/heads/main/player.html';
 
 function initCustomPlayer() {
+  // Check if player should be enabled
   const saved = localStorage.getItem("bestTube-remove-player-ads");
   const isEnabled = saved === "true";
   
-  if (isEnabled && window.location.href.includes("/watch")) {
-    document.body.classList.add("bestTube-custom-player");
+  if (isEnabled) {
     setupCustomPlayer();
   }
 
@@ -694,11 +693,9 @@ function initCustomPlayer() {
         const saved = localStorage.getItem("bestTube-remove-player-ads");
         const isEnabled = saved === "true";
         
-        if (isEnabled && window.location.href.includes("/watch")) {
-          document.body.classList.add("bestTube-custom-player");
+        if (isEnabled) {
           setupCustomPlayer();
         } else {
-          document.body.classList.remove("bestTube-custom-player");
           removeCustomPlayer();
         }
       }, 50);
@@ -715,52 +712,83 @@ function initCustomPlayer() {
       const saved = localStorage.getItem("bestTube-remove-player-ads");
       const isEnabled = saved === "true";
       
-      if (isEnabled && currentUrl.includes("/watch")) {
-        document.body.classList.add("bestTube-custom-player");
-        setupCustomPlayer();
+      if (isEnabled) {
+        setTimeout(() => {
+          removeCustomPlayer();
+          setupCustomPlayer();
+        }, 500);
       } else {
-        document.body.classList.remove("bestTube-custom-player");
         removeCustomPlayer();
       }
     }
   });
   
-  urlObserver.observe(document.body, { childList: true, subtree: true });
+  if (document.body) {
+    urlObserver.observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 function setupCustomPlayer() {
+  // Only on video pages
+  if (!window.location.href.includes("/watch")) return;
+  
   // Wait for YouTube player to load
   const checkForPlayer = setInterval(() => {
-    const videoPlayer = document.querySelector("#movie_player");
-    const playerContainer = document.querySelector("#movie_player");
-    
-    if (videoPlayer && playerContainer) {
+    const moviePlayer = document.querySelector("#movie_player");
+    if (moviePlayer) {
       clearInterval(checkForPlayer);
-      injectCustomPlayer();
+      createCustomPlayer();
     }
   }, 100);
 
-  // Clear after 10 seconds to avoid infinite loop
-  setTimeout(() => clearInterval(checkForPlayer), 10000);
+  // Clear after 5 seconds to avoid infinite loop
+  setTimeout(() => clearInterval(checkForPlayer), 5000);
 }
 
-function injectCustomPlayer() {
+function createCustomPlayer() {
   // Check if player already exists
-  if (document.getElementById("bestTube-custom-player-iframe")) return;
+  if (document.getElementById("bestTube-custom-player")) return;
   
   // Get video information
   const videoId = getVideoIdFromUrl();
   if (!videoId) return;
 
+  // Create the player container
+  const playerContainer = document.createElement("div");
+  playerContainer.id = "bestTube-custom-player";
+  playerContainer.style.cssText = `
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: #000 !important;
+    z-index: 10000 !important;
+  `;
+  
+  // Create the video element
+  const videoElement = document.createElement("video");
+  videoElement.id = "bestTube-video-element";
+  videoElement.style.cssText = `
+    width: 100% !important;
+    height: 100% !important;
+    background: #000 !important;
+  `;
+  videoElement.autoplay = true;
+  videoElement.playsInline = true;
+  
   // Get time from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const startTime = urlParams.get("t") || "0";
   
-  // Create iframe with player
-  const iframe = document.createElement("iframe");
-  iframe.id = "bestTube-custom-player-iframe";
-  iframe.src = `${PLAYER_HTML_URL}?v=${videoId}&t=${startTime}`;
-  iframe.style.cssText = `
+  // Construct YouTube embed URL
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1&rel=0&showinfo=0&controls=0&modestbranding=1`;
+  
+  // Create iframe for YouTube embed (the actual video)
+  const youtubeIframe = document.createElement("iframe");
+  youtubeIframe.id = "bestTube-youtube-iframe";
+  youtubeIframe.src = embedUrl;
+  youtubeIframe.style.cssText = `
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
@@ -768,28 +796,256 @@ function injectCustomPlayer() {
     height: 100% !important;
     border: none !important;
     background: #000 !important;
-    z-index: 99999 !important;
+    z-index: 1 !important;
   `;
-  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-  iframe.allowFullscreen = true;
+  youtubeIframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  youtubeIframe.allowFullscreen = true;
   
-  // Find the YouTube player container
+  // Add overlay controls
+  const controlsOverlay = createPlayerControls();
+  
+  playerContainer.appendChild(youtubeIframe);
+  playerContainer.appendChild(controlsOverlay);
+  
+  // Find the YouTube player container and insert our player
   const moviePlayer = document.querySelector("#movie_player");
   if (moviePlayer) {
     moviePlayer.style.position = "relative";
-    moviePlayer.appendChild(iframe);
+    moviePlayer.appendChild(playerContainer);
+    
+    // Set initial time if specified
+    if (startTime !== "0") {
+      setTimeout(() => {
+        setYoutubePlayerTime(startTime);
+      }, 2000);
+    }
   }
   
   // Inject player styles
   injectPlayerStyles();
+  
+  // Start listening to YouTube player events
+  setupPlayerEventListeners();
+}
+
+function createPlayerControls() {
+  const controls = document.createElement("div");
+  controls.id = "bestTube-player-controls";
+  controls.style.cssText = `
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+  `;
+  
+  // Add play/pause overlay
+  const playPauseOverlay = document.createElement("div");
+  playPauseOverlay.style.cssText = `
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s !important;
+  `;
+  playPauseOverlay.id = "bestTube-play-pause-overlay";
+  
+  // Add play/pause button
+  const playPauseBtn = document.createElement("div");
+  playPauseBtn.style.cssText = `
+    width: 80px !important;
+    height: 80px !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  `;
+  playPauseBtn.innerHTML = `
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="#fff">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  `;
+  
+  playPauseBtn.addEventListener("click", function(e) {
+    e.stopPropagation();
+    togglePlayPause();
+  });
+  
+  playPauseOverlay.appendChild(playPauseBtn);
+  controls.appendChild(playPauseOverlay);
+  
+  // Add click handler to show/hide controls
+  controls.addEventListener("click", function(e) {
+    if (e.target === controls) {
+      toggleControls();
+    }
+  });
+  
+  // Double click to fullscreen
+  controls.addEventListener("dblclick", function(e) {
+    e.preventDefault();
+    toggleFullscreen();
+  });
+  
+  return controls;
+}
+
+function togglePlayPause() {
+  const iframe = document.getElementById("bestTube-youtube-iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+    } catch (e) {
+      console.log("Error toggling play/pause:", e);
+    }
+  }
+}
+
+function toggleControls() {
+  const overlay = document.getElementById("bestTube-play-pause-overlay");
+  if (overlay) {
+    const currentOpacity = parseFloat(overlay.style.opacity || "0");
+    overlay.style.opacity = currentOpacity === 0 ? "1" : "0";
+  }
+}
+
+function toggleFullscreen() {
+  const playerContainer = document.getElementById("bestTube-custom-player");
+  if (playerContainer) {
+    if (!document.fullscreenElement) {
+      playerContainer.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+}
+
+function setYoutubePlayerTime(timeInSeconds) {
+  const iframe = document.getElementById("bestTube-youtube-iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      const time = parseInt(timeInSeconds);
+      iframe.contentWindow.postMessage(`{"event":"command","func":"seekTo","args":[${time},true]}`, '*');
+    } catch (e) {
+      console.log("Error setting time:", e);
+    }
+  }
+}
+
+function setupPlayerEventListeners() {
+  // Listen for YouTube player events
+  window.addEventListener('message', function(event) {
+    if (typeof event.data !== 'string') return;
+    
+    try {
+      const data = JSON.parse(event.data);
+      if (data.event === 'infoDelivery' && data.info) {
+        // Handle player state updates
+        if (data.info.playerState !== undefined) {
+          // Player state changed (playing, paused, etc.)
+        }
+        if (data.info.currentTime !== undefined) {
+          // Time update
+        }
+        if (data.info.duration !== undefined) {
+          // Duration update
+        }
+      }
+    } catch (e) {
+      // Not a JSON message, ignore
+    }
+  });
+  
+  // Handle keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    const player = document.getElementById("bestTube-custom-player");
+    if (!player) return;
+    
+    switch(e.key.toLowerCase()) {
+      case 'k':
+      case ' ':
+        e.preventDefault();
+        togglePlayPause();
+        break;
+      case 'f':
+        e.preventDefault();
+        toggleFullscreen();
+        break;
+      case 'm':
+        e.preventDefault();
+        toggleMute();
+        break;
+      case 'arrowleft':
+        e.preventDefault();
+        seekRelative(-5);
+        break;
+      case 'arrowright':
+        e.preventDefault();
+        seekRelative(5);
+        break;
+      case 'arrowup':
+        e.preventDefault();
+        changeVolume(10);
+        break;
+      case 'arrowdown':
+        e.preventDefault();
+        changeVolume(-10);
+        break;
+    }
+  });
+}
+
+function toggleMute() {
+  const iframe = document.getElementById("bestTube-youtube-iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+    } catch (e) {
+      console.log("Error toggling mute:", e);
+    }
+  }
+}
+
+function seekRelative(seconds) {
+  const iframe = document.getElementById("bestTube-youtube-iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage(`{"event":"command","func":"seekBy","args":[${seconds}]}`, '*');
+    } catch (e) {
+      console.log("Error seeking:", e);
+    }
+  }
+}
+
+function changeVolume(delta) {
+  const iframe = document.getElementById("bestTube-youtube-iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage(`{"event":"command","func":"setVolume","args":[Math.min(100, Math.max(0, (iframe.contentWindow.YT || {}).getVolume() + delta))]}`, '*');
+    } catch (e) {
+      console.log("Error changing volume:", e);
+    }
+  }
 }
 
 function removeCustomPlayer() {
-  const iframe = document.getElementById("bestTube-custom-player-iframe");
-  if (iframe) {
-    iframe.remove();
+  const player = document.getElementById("bestTube-custom-player");
+  if (player) {
+    player.remove();
   }
-  document.body.classList.remove("bestTube-custom-player");
 }
 
 function getVideoIdFromUrl() {
@@ -805,21 +1061,38 @@ function injectPlayerStyles() {
   style.id = styleId;
   style.textContent = `
     /* Hide YouTube player controls when custom player is active */
-    body.bestTube-custom-player .ytp-chrome-top,
-    body.bestTube-custom-player .ytp-chrome-bottom,
-    body.bestTube-custom-player .ytp-ce-element,
-    body.bestTube-custom-player .ytp-gradient-top,
-    body.bestTube-custom-player .ytp-gradient-bottom,
-    body.bestTube-custom-player .ytp-progress-bar-container,
-    body.bestTube-custom-player .ytp-chrome-controls {
+    body.bestTube-custom-player-active .ytp-chrome-top,
+    body.bestTube-custom-player-active .ytp-chrome-bottom,
+    body.bestTube-custom-player-active .ytp-ce-element,
+    body.bestTube-custom-player-active .ytp-gradient-top,
+    body.bestTube-custom-player-active .ytp-gradient-bottom,
+    body.bestTube-custom-player-active .ytp-progress-bar-container,
+    body.bestTube-custom-player-active .ytp-chrome-controls {
       display: none !important;
       opacity: 0 !important;
       visibility: hidden !important;
     }
     
-    /* Ensure movie player is properly positioned */
-    body.bestTube-custom-player #movie_player {
-      position: relative !important;
+    /* Make sure our player stays on top */
+    #bestTube-custom-player {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: #000 !important;
+      z-index: 10000 !important;
+    }
+    
+    /* Hide YouTube video but keep the container */
+    #bestTube-custom-player + * video {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    
+    /* Style for the play/pause overlay */
+    #bestTube-play-pause-overlay:hover {
+      opacity: 1 !important;
     }
   `;
   
