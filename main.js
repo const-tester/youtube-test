@@ -1,4 +1,4 @@
-const version = '0.3.3';
+const version = '0.3.4';
 
 // ============================================================
 //  OPTIONS CSS
@@ -782,7 +782,7 @@ function createCustomPlayer() {
   const startTime = urlParams.get("t") || "0";
   
   // Construct YouTube embed URL
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.origin}&widgetid=1&rel=0&showinfo=0&controls=0&modestbranding=1`;
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&widgetid=1&rel=0&showinfo=0&controls=0&modestbranding=1`;
   
   // Create iframe for YouTube embed (the actual video)
   const youtubeIframe = document.createElement("iframe");
