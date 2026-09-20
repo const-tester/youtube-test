@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.3.5';
+  const version = '0.3.6';
 
   // ============================================================
   //  1. MODO PROXY WIKIMEDIA
@@ -7,25 +7,23 @@
   if (window.location.hostname.includes('wikimedia.org')) {
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('bestTubeEmbed');
-    const startTime = urlParams.get('t') || '0';
+    const startTime = urlParams.get('t') || "0";
 
     if (videoId) {
       document.documentElement.innerHTML = `
         <head><title>BestTube Player</title></head>
         <body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>
       `;
-      const ytIframe = document.createElement('iframe');
-      ytIframe.id = 'real-youtube-iframe';
+      const ytIframe = document.createElement("iframe");
+      ytIframe.id = "bestTube-youtube-iframe";
       ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=https://www.wikimedia.org&widgetid=1&rel=0&showinfo=0&controls=0&modestbranding=1&start=${startTime}`;
-      ytIframe.style.cssText =
-        'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
-      ytIframe.allow =
-        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      ytIframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;";
+      ytIframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
       ytIframe.allowFullscreen = true;
       document.body.appendChild(ytIframe);
 
       // Puente para los controles de pausa, volumen, etc.
-      window.addEventListener('message', (event) => {
+      window.addEventListener("message", (event) => {
         if (event.source === window.parent && ytIframe.contentWindow) {
           ytIframe.contentWindow.postMessage(event.data, '*');
         }
@@ -34,17 +32,12 @@
         }
       });
     }
-
-    // Detenemos la ejecución aquí. Todo lo de abajo es solo para YouTube.
+    
     return;
   }
 
   // ============================================================
-  //  2. MODO YOUTUBE (RESTO DE LA EXTENSIÓN)
-  // ============================================================
-
-  // ============================================================
-  //  OPTIONS CSS
+  //  2. MODO YOUTUBE
   // ============================================================
   const cssRemoveAds = `
     .ytd-search ytd-shelf-renderer,
@@ -184,9 +177,6 @@
     }
   `;
 
-  // ============================================================
-  //  STYLES MANAGER
-  // ============================================================
   const bestTubeStyleManager = {
     styles: {},
     set(id, css) {
@@ -196,7 +186,7 @@
         return;
       }
       if (!this.styles[id]) {
-        const tag = document.createElement('style');
+        const tag = document.createElement("style");
         tag.id = id;
         tag.textContent = css;
         document.head.appendChild(tag);
@@ -204,14 +194,10 @@
       } else {
         this.styles[id].textContent = css;
       }
-    },
+    }
   };
 
-  // ============================================================
-  //  INIT YOUTUBE
-  // ============================================================
   insertStyles();
-
   waitForBody(() => {
     insertPopup();
     waitForButtonsBar((buttonsBar) => {
@@ -220,89 +206,68 @@
     });
   });
 
-  // ============================================================
-  //  CHECKBOXES
-  // ============================================================
   function initCheckboxToggle(id, styleId, css) {
     const cb = document.getElementById(id);
     if (!cb) return;
-
-    let isChecked = false;
-    const saved = localStorage.getItem('bestTube-' + id);
-    if (saved !== null) {
-      isChecked = saved === 'true';
-    }
+    let isChecked = localStorage.getItem("bestTube-" + id) === "true";
 
     const apply = () => {
-      localStorage.setItem('bestTube-' + id, isChecked);
+      localStorage.setItem("bestTube-" + id, isChecked);
       bestTubeStyleManager.set(styleId, isChecked ? css : null);
-      if (isChecked) {
-        cb.setAttribute('checked', '');
-      } else {
-        cb.removeAttribute('checked');
-      }
+      if (isChecked) cb.setAttribute("checked", "");
+      else cb.removeAttribute("checked");
     };
 
-    cb.addEventListener('click', () => {
+    cb.addEventListener("click", () => {
       isChecked = !isChecked;
       apply();
     });
-
     apply();
   }
 
-  // ============================================================
-  //  DOM HELPERS
-  // ============================================================
   function waitForBody(callback) {
     if (document.body) return callback();
     requestAnimationFrame(() => waitForBody(callback));
   }
 
   function waitForButtonsBar(callback) {
-    const buttonsBar = document.querySelector(
-      'ytd-masthead #container #end #buttons',
-    );
+    const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
     if (buttonsBar) return callback(buttonsBar);
     requestAnimationFrame(() => waitForButtonsBar(callback));
   }
 
   function startObserver(buttonsBar) {
-    const observer = new MutationObserver(() => ensureButton(buttonsBar));
-    observer.observe(buttonsBar, { childList: true, subtree: false });
+    new MutationObserver(() => ensureButton(buttonsBar)).observe(buttonsBar, { childList: true, subtree: false });
   }
 
   function ensureButton(buttonsBar) {
     if (!document.querySelector('#bestTube-btn')) {
-      const popup = document.querySelector('#bestTube-popup');
-      const icon = document.querySelector('#bestTube-btn-icon');
-      if (popup) popup.style.display = 'none';
-      if (icon) icon.style.transform = 'rotate(0deg)';
+      const popup = document.querySelector("#bestTube-popup");
+      const icon = document.querySelector("#bestTube-btn-icon");
+      if (popup) popup.style.display = "none";
+      if (icon) icon.style.transform = "rotate(0deg)";
       insertButton(buttonsBar);
     }
   }
 
   function togglePopup(forceState = null) {
-    const btn = document.querySelector('#bestTube-btn');
-    const icon = document.querySelector('#bestTube-btn-icon');
-    const popup = document.querySelector('#bestTube-popup');
+    const btn = document.querySelector("#bestTube-btn");
+    const icon = document.querySelector("#bestTube-btn-icon");
+    const popup = document.querySelector("#bestTube-popup");
     if (!btn || !icon || !popup) return;
 
-    const active = btn.dataset.active === 'true';
+    const active = btn.dataset.active === "true";
     const newState = forceState !== null ? forceState : !active;
 
     btn.dataset.active = newState;
-    icon.style.transform = newState ? 'rotate(180deg)' : 'rotate(0deg)';
-    btn.style.backgroundColor = newState ? 'rgba(255, 255, 255, 0.2)' : '';
-    popup.style.display = newState ? 'block' : 'none';
+    icon.style.transform = newState ? "rotate(180deg)" : "rotate(0deg)";
+    btn.style.backgroundColor = newState ? "rgba(255, 255, 255, 0.2)" : "";
+    popup.style.display = newState ? "block" : "none";
   }
 
-  // ============================================================
-  //  UI INJECTIONS (BOTÓN Y POPUP)
-  // ============================================================
   function insertStyles() {
     const styles = document.createElement('style');
-    styles.id = 'bestTube-styles';
+    styles.id = "bestTube-styles";
     styles.textContent = `
       #bestTube-btn, #bestTube-popup { user-select: none; }
       #bestTube-btn { transition: background-color .3s; margin-left: 8px; margin-right: 8px; }
@@ -328,23 +293,22 @@
   }
 
   function insertButton(buttonsBar) {
-    const btn = document.createElement('button');
-    btn.id = 'bestTube-btn';
-    btn.title = 'BestTube Extension';
-    btn.className =
-      'ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlay ytSpecButtonShapeNextSizeM ytSpecButtonShapeNextIconLeading ytSpecButtonShapeNextEnableBackdropFilterExperiment';
-    const iconBtn = document.createElement('span');
-    iconBtn.id = 'bestTube-btn-icon';
-    iconBtn.className = 'ytSpecButtonShapeNextIcon';
+    const btn = document.createElement("button");
+    btn.id = "bestTube-btn";
+    btn.title = "BestTube Extension";
+    btn.className = "ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlay ytSpecButtonShapeNextSizeM ytSpecButtonShapeNextIconLeading ytSpecButtonShapeNextEnableBackdropFilterExperiment";
+    const iconBtn = document.createElement("span");
+    iconBtn.id = "bestTube-btn-icon";
+    iconBtn.className = "ytSpecButtonShapeNextIcon";
     iconBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" transform="matrix(-1.8369701987210297e-16,-1,1,-1.8369701987210297e-16,0,0)"><path fill="currentColor" d="m9.55 12l7.35 7.35q.375.375.363.875t-.388.875q-.375.375-.875.375t-.875-.375l-7.7-7.675q-.3-.3-.45-.675t-.15-.75q0-.375.15-.75t.45-.675l7.7-7.7q.375-.375.888-.363t.887.388q.375.375.375.875t-.375.875L9.55 12Z"></path></svg>`;
-    const textBtn = document.createElement('div');
-    textBtn.id = 'bestTube-btn-text';
-    textBtn.className = 'yt-spec-button-shape-next__button-text-content';
+    const textBtn = document.createElement("div");
+    textBtn.id = "bestTube-btn-text";
+    textBtn.className = "yt-spec-button-shape-next__button-text-content";
     textBtn.innerHTML = `<span>BestTube</span>`;
     btn.appendChild(iconBtn);
     btn.appendChild(textBtn);
-    btn.dataset.active = 'false';
-    btn.addEventListener('click', () => togglePopup());
+    btn.dataset.active = "false";
+    btn.addEventListener("click", () => togglePopup());
     buttonsBar.prepend(btn);
   }
 
@@ -356,8 +320,8 @@
           <div id="${id}" class="toggle-container"><div class="toggle-bar"></div><div class="toggle-button"></div></div>
         </div>`;
 
-      const popup = document.createElement('div');
-      popup.id = 'bestTube-popup';
+      const popup = document.createElement("div");
+      popup.id = "bestTube-popup";
       popup.innerHTML = `
         <div id="bestTube-popup-title">
           <h2>BestTube</h2>
@@ -375,54 +339,21 @@
         </div>`;
       document.body.appendChild(popup);
 
-      popup
-        .querySelector('#bestTube-popup-title button')
-        .addEventListener('click', () => togglePopup(false));
-      document.addEventListener('click', (e) => {
-        const p = document.querySelector('#bestTube-popup');
-        const b = document.querySelector('#bestTube-btn');
-        if (
-          p &&
-          b &&
-          b.dataset.active === 'true' &&
-          !p.contains(e.target) &&
-          !b.contains(e.target)
-        )
-          togglePopup(false);
+      popup.querySelector("#bestTube-popup-title button").addEventListener("click", () => togglePopup(false));
+      document.addEventListener("click", (e) => {
+        const p = document.querySelector("#bestTube-popup");
+        const b = document.querySelector("#bestTube-btn");
+        if (p && b && b.dataset.active === "true" && !p.contains(e.target) && !b.contains(e.target)) togglePopup(false);
       });
 
-      initCheckboxToggle(
-        'remove-player-ads',
-        'bestTube-remove-player-ads',
-        cssHideOriginalPlayer,
-      );
-      initCheckboxToggle('remove-ads', 'bestTube-remove-ads', cssRemoveAds);
-      initCheckboxToggle(
-        'responsive-rows',
-        'bestTube-responsive-rows',
-        cssResponsiveRows,
-      );
-      initCheckboxToggle(
-        'remove-members',
-        'bestTube-remove-members',
-        cssRemoveMembers,
-      );
-      initCheckboxToggle(
-        'remove-shorts',
-        'bestTube-remove-shorts',
-        cssRemoveShorts,
-      );
-      initCheckboxToggle('remove-news', 'bestTube-remove-news', cssRemoveNews);
-      initCheckboxToggle(
-        'remove-recommended',
-        'bestTube-remove-recommended',
-        cssRemoveRecommended,
-      );
-      initCheckboxToggle(
-        'remove-super-thanks',
-        'bestTube-remove-super-thanks',
-        cssRemoveSuperThanks,
-      );
+      initCheckboxToggle("remove-player-ads", "bestTube-remove-player-ads", cssHideOriginalPlayer);
+      initCheckboxToggle("remove-ads", "bestTube-remove-ads", cssRemoveAds);
+      initCheckboxToggle("responsive-rows", "bestTube-responsive-rows", cssResponsiveRows);
+      initCheckboxToggle("remove-members", "bestTube-remove-members", cssRemoveMembers);
+      initCheckboxToggle("remove-shorts", "bestTube-remove-shorts", cssRemoveShorts);
+      initCheckboxToggle("remove-news", "bestTube-remove-news", cssRemoveNews);
+      initCheckboxToggle("remove-recommended", "bestTube-remove-recommended", cssRemoveRecommended);
+      initCheckboxToggle("remove-super-thanks", "bestTube-remove-super-thanks", cssRemoveSuperThanks);
 
       initCustomPlayer();
     }
@@ -431,16 +362,31 @@
   // ============================================================
   //  REPRODUCTOR PERSONALIZADO (INYECTA EL IFRAME DE WIKIMEDIA)
   // ============================================================
+  
+  // Novedad: Helper para silenciar el video original
+  function setOriginalVideoMute(mute) {
+    const video = document.querySelector('#movie_player video');
+    const player = document.querySelector('#movie_player');
+    
+    // Muteamos a nivel HTML5
+    if (video) video.muted = mute;
+    
+    // Muteamos a nivel de la API del reproductor de YouTube
+    if (player && typeof player.mute === 'function' && typeof player.unMute === 'function') {
+      if (mute) player.mute();
+      else player.unMute();
+    }
+  }
+
   function initCustomPlayer() {
-    const isEnabled =
-      localStorage.getItem('bestTube-remove-player-ads') === 'true';
+    const isEnabled = localStorage.getItem("bestTube-remove-player-ads") === "true";
     if (isEnabled) setupCustomPlayer();
 
-    const toggleContainer = document.getElementById('remove-player-ads');
+    const toggleContainer = document.getElementById("remove-player-ads");
     if (toggleContainer) {
-      toggleContainer.addEventListener('click', function () {
+      toggleContainer.addEventListener("click", function() {
         setTimeout(() => {
-          if (localStorage.getItem('bestTube-remove-player-ads') === 'true') {
+          if (localStorage.getItem("bestTube-remove-player-ads") === "true") {
             setupCustomPlayer();
           } else {
             removeCustomPlayer();
@@ -453,7 +399,7 @@
     const urlObserver = new MutationObserver(() => {
       if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
-        if (localStorage.getItem('bestTube-remove-player-ads') === 'true') {
+        if (localStorage.getItem("bestTube-remove-player-ads") === "true") {
           setTimeout(() => {
             removeCustomPlayer();
             setupCustomPlayer();
@@ -463,17 +409,15 @@
         }
       }
     });
-
-    if (document.body) {
-      urlObserver.observe(document.body, { childList: true, subtree: true });
-    }
+    
+    if (document.body) urlObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   function setupCustomPlayer() {
-    if (!window.location.href.includes('/watch')) return;
-
+    if (!window.location.href.includes("/watch")) return;
+    
     const checkForPlayer = setInterval(() => {
-      if (document.querySelector('#movie_player')) {
+      if (document.querySelector("#movie_player")) {
         clearInterval(checkForPlayer);
         createCustomPlayer();
       }
@@ -482,168 +426,126 @@
   }
 
   function createCustomPlayer() {
-    if (document.getElementById('bestTube-custom-player')) return;
-
+    if (document.getElementById("bestTube-custom-player")) return;
+    
     const videoId = getVideoIdFromUrl();
     if (!videoId) return;
 
-    const playerContainer = document.createElement('div');
-    playerContainer.id = 'bestTube-custom-player';
+    const playerContainer = document.createElement("div");
+    playerContainer.id = "bestTube-custom-player";
     playerContainer.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #000 !important; z-index: 10000 !important;`;
-
+    
     const urlParams = new URLSearchParams(window.location.search);
-    const startTime = urlParams.get('t') || '0';
-
-    // AQUÍ INYECTA EL IFRAME DE WIKIMEDIA (El cual disparará la lógica de arriba del todo)
+    const startTime = urlParams.get("t") || "0";
+    
     const wikimediaUrl = `https://www.wikimedia.org/?bestTubeEmbed=${videoId}&t=${startTime}`;
-
-    const wikimediaIframe = document.createElement('iframe');
-    wikimediaIframe.id = 'bestTube-youtube-iframe';
+    const wikimediaIframe = document.createElement("iframe");
+    wikimediaIframe.id = "bestTube-wikimedia-iframe"; 
     wikimediaIframe.src = wikimediaUrl;
     wikimediaIframe.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none !important; background: #000 !important; z-index: 1 !important;`;
-    wikimediaIframe.allow =
-      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    wikimediaIframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
     wikimediaIframe.allowFullscreen = true;
-
+    
     playerContainer.appendChild(wikimediaIframe);
     playerContainer.appendChild(createPlayerControls());
-
-    const moviePlayer = document.querySelector('#movie_player');
+    
+    const moviePlayer = document.querySelector("#movie_player");
     if (moviePlayer) {
-      moviePlayer.style.position = 'relative';
+      moviePlayer.style.position = "relative";
       moviePlayer.appendChild(playerContainer);
-      if (startTime !== '0')
-        setTimeout(() => setYoutubePlayerTime(startTime), 2000);
+      if (startTime !== "0") setTimeout(() => setYoutubePlayerTime(startTime), 2000);
     }
-
+    
     injectPlayerStyles();
     setupPlayerEventListeners();
+
+    setOriginalVideoMute(true);
   }
 
   function createPlayerControls() {
-    const controls = document.createElement('div');
-    controls.id = 'bestTube-player-controls';
+    const controls = document.createElement("div");
+    controls.id = "bestTube-player-controls";
     controls.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 2 !important; pointer-events: none !important;`;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'bestTube-play-pause-overlay';
+    
+    const overlay = document.createElement("div");
+    overlay.id = "bestTube-play-pause-overlay";
     overlay.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; pointer-events: none !important; opacity: 0 !important; transition: opacity 0.3s !important;`;
-
-    const btn = document.createElement('div');
+    
+    const btn = document.createElement("div");
     btn.style.cssText = `width: 80px !important; height: 80px !important; background: rgba(0, 0, 0, 0.6) !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; pointer-events: auto !important; cursor: pointer !important;`;
     btn.innerHTML = `<svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>`;
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePlayPause();
-    });
+    
+    btn.addEventListener("click", e => { e.stopPropagation(); togglePlayPause(); });
     overlay.appendChild(btn);
     controls.appendChild(overlay);
-
-    controls.addEventListener('click', (e) => {
-      if (e.target === controls) toggleControls();
-    });
-    controls.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      toggleFullscreen();
-    });
-
+    
+    controls.addEventListener("click", e => { if (e.target === controls) toggleControls(); });
+    controls.addEventListener("dblclick", e => { e.preventDefault(); toggleFullscreen(); });
+    
     return controls;
   }
 
   function togglePlayPause() {
-    const iframe = document.getElementById('bestTube-youtube-iframe');
-    if (iframe && iframe.contentWindow)
-      iframe.contentWindow.postMessage(
-        '{"event":"command","func":"pauseVideo","args":""}',
-        '*',
-      );
+    const iframe = document.getElementById("bestTube-wikimedia-iframe");
+    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
   }
 
   function toggleControls() {
-    const overlay = document.getElementById('bestTube-play-pause-overlay');
-    if (overlay)
-      overlay.style.opacity = overlay.style.opacity === '1' ? '0' : '1';
+    const overlay = document.getElementById("bestTube-play-pause-overlay");
+    if (overlay) overlay.style.opacity = overlay.style.opacity === "1" ? "0" : "1";
   }
 
   function toggleFullscreen() {
-    const playerContainer = document.getElementById('bestTube-custom-player');
+    const playerContainer = document.getElementById("bestTube-custom-player");
     if (playerContainer) {
-      if (!document.fullscreenElement)
-        playerContainer.requestFullscreen().catch(() => {});
+      if (!document.fullscreenElement) playerContainer.requestFullscreen().catch(() => {});
       else document.exitFullscreen();
     }
   }
 
   function setYoutubePlayerTime(time) {
-    const iframe = document.getElementById('bestTube-youtube-iframe');
-    if (iframe && iframe.contentWindow)
-      iframe.contentWindow.postMessage(
-        `{"event":"command","func":"seekTo","args":[${parseInt(time)},true]}`,
-        '*',
-      );
+    const iframe = document.getElementById("bestTube-wikimedia-iframe");
+    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage(`{"event":"command","func":"seekTo","args":[${parseInt(time)},true]}`, '*');
   }
 
   function setupPlayerEventListeners() {
-    document.addEventListener('keydown', function (e) {
-      if (!document.getElementById('bestTube-custom-player')) return;
-      switch (e.key.toLowerCase()) {
-        case 'k':
-        case ' ':
-          e.preventDefault();
-          togglePlayPause();
-          break;
-        case 'f':
-          e.preventDefault();
-          toggleFullscreen();
-          break;
-        case 'm':
-          e.preventDefault();
-          toggleMute();
-          break;
-        case 'arrowleft':
-          e.preventDefault();
-          seekRelative(-5);
-          break;
-        case 'arrowright':
-          e.preventDefault();
-          seekRelative(5);
-          break;
+    document.addEventListener('keydown', function(e) {
+      if (!document.getElementById("bestTube-custom-player")) return;
+      switch(e.key.toLowerCase()) {
+        case 'k': case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'f': e.preventDefault(); toggleFullscreen(); break;
+        case 'm': e.preventDefault(); toggleMute(); break;
+        case 'arrowleft': e.preventDefault(); seekRelative(-5); break;
+        case 'arrowright': e.preventDefault(); seekRelative(5); break;
       }
     });
   }
 
   function toggleMute() {
-    const iframe = document.getElementById('bestTube-youtube-iframe');
-    if (iframe && iframe.contentWindow)
-      iframe.contentWindow.postMessage(
-        '{"event":"command","func":"mute","args":""}',
-        '*',
-      );
+    const iframe = document.getElementById("bestTube-wikimedia-iframe");
+    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
   }
 
   function seekRelative(seconds) {
-    const iframe = document.getElementById('bestTube-youtube-iframe');
-    if (iframe && iframe.contentWindow)
-      iframe.contentWindow.postMessage(
-        `{"event":"command","func":"seekBy","args":[${seconds}]}`,
-        '*',
-      );
+    const iframe = document.getElementById("bestTube-wikimedia-iframe");
+    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage(`{"event":"command","func":"seekBy","args":[${seconds}]}`, '*');
   }
 
   function removeCustomPlayer() {
-    const player = document.getElementById('bestTube-custom-player');
+    const player = document.getElementById("bestTube-custom-player");
     if (player) player.remove();
+    
+    setOriginalVideoMute(false);
   }
 
   function getVideoIdFromUrl() {
-    return new URLSearchParams(window.location.search).get('v');
+    return new URLSearchParams(window.location.search).get("v");
   }
 
   function injectPlayerStyles() {
-    if (document.getElementById('bestTube-player-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'bestTube-player-styles';
+    if (document.getElementById("bestTube-player-styles")) return;
+    const style = document.createElement("style");
+    style.id = "bestTube-player-styles";
     style.textContent = `
       body.bestTube-custom-player-active .ytp-chrome-top, body.bestTube-custom-player-active .ytp-chrome-bottom,
       body.bestTube-custom-player-active .ytp-ce-element, body.bestTube-custom-player-active .ytp-gradient-top,
