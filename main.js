@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.0';
+  const version = '0.4.1';
 
   // ============================================================
   //  1. MODO YOUTUBE EMBED
@@ -40,7 +40,7 @@
       `;
       const ytIframe = document.createElement('iframe');
       ytIframe.id = 'bestTube-youtube-iframe';
-      ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=https://www.wikimedia.org&widgetid=1&rel=0&showinfo=0&controls=0&modestbranding=1&start=${startTime}`;
+      ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTime}`;
       ytIframe.style.cssText =
         'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
       ytIframe.allow =
