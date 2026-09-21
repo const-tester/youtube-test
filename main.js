@@ -356,7 +356,8 @@
     tp-yt-iron-overlay-backdrop,
     #masthead-ad,
     #offer-module,
-    ytd-item-section-renderer:has(ytd-ad-slot-renderer),
+    /*TODO: CORREGIR LA SIGUIENTE LINEA*/
+    /*ytd-item-section-renderer:has(ytd-ad-slot-renderer),*/
     tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
       display: none !important;
     }
