@@ -255,6 +255,60 @@
         .ytPlayerStoryboardHost {
           bottom: 50px !important;
         }
+
+        /* 10. Mejorar popup de opciones */
+        #bottom-sheet-wrapper .ytWebScrimHostBottomSheet {
+          background-color: transparent !important;
+        }
+
+        #bottom-sheet-wrapper .ytSpecBottomSheetLayoutHost {
+          margin: unset !important;
+          left: unset !important;
+          bottom: 69px !important;
+          right: 12px !important;
+          right: 12px !important;
+          background-color:  rgba(0, 0, 0, .6) !important;
+        }
+
+        #bottom-sheet-wrapper .ytSpecBottomSheetLayoutHost .ytListItemViewModelMainContainer > :nth-child(1) *,
+        #bottom-sheet-wrapper .ytSpecBottomSheetLayoutHost .ytListItemViewModelMainContainer > :nth-child(2) * {
+          color: #eee !important;
+        }
+
+        #bottom-sheet-wrapper .ytSpecBottomSheetLayoutHost .ytListItemViewModelMainContainer > :nth-child(3),
+        #bottom-sheet-wrapper .ytSpecBottomSheetLayoutHost .ytListItemViewModelMainContainer > :nth-child(4) * {
+          color: rgba(255,255,255,.7) !important;
+        }
+
+        #bottom-sheet-header {
+          border-bottom: unset !important;
+        }
+
+        #bottom-sheet-header .ytSpecBottomSheetLayoutDragLine {
+          background: rgba(255, 255, 255, 0.4) !important;
+          opacity: unset !important;
+        }
+        
+        /* Scrollbar menu opciones Firefox */
+        .ytSpecBottomSheetLayoutContentWrapper {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+        }
+        
+        /* 2. Scrollbar menu opciones Chromium */
+        .ytSpecBottomSheetLayoutContentWrapper::-webkit-scrollbar {
+          width: 6px; /* Ancho del scrollbar vertical */
+          height: 6px; /* Alto del scrollbar horizontal (por si aplica) */
+        }
+        
+        .ytSpecBottomSheetLayoutContentWrapper::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        .ytSpecBottomSheetLayoutContentWrapper::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.4);
+          border-radius: 10px;
+        }
       `;
       document.head.appendChild(style);
     };
