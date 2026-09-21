@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.1';
+  const version = '0.4.2';
 
   // ============================================================
   //  1. MODO YOUTUBE EMBED
@@ -837,7 +837,6 @@
     wikimediaIframe.allowFullscreen = true;
 
     playerContainer.appendChild(wikimediaIframe);
-    playerContainer.appendChild(createPlayerControls());
 
     const moviePlayer = document.querySelector('#movie_player');
     if (moviePlayer) {
@@ -851,37 +850,6 @@
     setupPlayerEventListeners();
 
     setOriginalVideoMute(true);
-  }
-
-  function createPlayerControls() {
-    const controls = document.createElement('div');
-    controls.id = 'bestTube-player-controls';
-    controls.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 2 !important; pointer-events: none !important;`;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'bestTube-play-pause-overlay';
-    overlay.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; pointer-events: none !important; opacity: 0 !important; transition: opacity 0.3s !important;`;
-
-    const btn = document.createElement('div');
-    btn.style.cssText = `width: 80px !important; height: 80px !important; background: rgba(0, 0, 0, 0.6) !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; pointer-events: auto !important; cursor: pointer !important;`;
-    btn.innerHTML = `<svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>`;
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePlayPause();
-    });
-    overlay.appendChild(btn);
-    controls.appendChild(overlay);
-
-    controls.addEventListener('click', (e) => {
-      if (e.target === controls) toggleControls();
-    });
-    controls.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      toggleFullscreen();
-    });
-
-    return controls;
   }
 
   function togglePlayPause() {
