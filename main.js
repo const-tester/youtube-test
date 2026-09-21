@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.2';
+  const version = '0.4.3';
 
   // ============================================================
   //  1. MODO YOUTUBE EMBED
@@ -12,7 +12,7 @@
       }
 
       const style = document.createElement('style');
-      style.id = 'bestTube-embed-styles';
+      style.id = 'zenTube-embed-styles';
       style.textContent = `
         /* Ocultar el título/detalles originales y menús flotantes */
         [id*='player'] embedded-player-video-details,
@@ -322,13 +322,13 @@
   // ============================================================
   if (window.location.hostname.includes('wikimedia.org')) {
     const urlParams = new URLSearchParams(window.location.search);
-    const videoId = urlParams.get('bestTubeEmbed');
+    const videoId = urlParams.get('zenTubeEmbed');
     const startTime = urlParams.get('t') || '0';
 
     if (videoId) {
       document.documentElement.innerHTML = `<body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>`;
       const ytIframe = document.createElement('iframe');
-      ytIframe.id = 'bestTube-youtube-iframe';
+      ytIframe.id = 'zenTube-youtube-iframe';
       ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTime}`;
       ytIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
       ytIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -570,13 +570,13 @@
   `;
 
   const cssHideOriginalPlayer = `
-    body.bestTube-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
-    body.bestTube-custom-player #player-full-bleed-container {
+    body.zenTube-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
+    body.zenTube-custom-player #player-full-bleed-container {
       visibility: hidden !important;
     }
   `;
 
-  const bestTubeStyleManager = {
+  const zenTubeStyleManager = {
     styles: {},
     set(id, css) {
       if (!css) {
@@ -608,11 +608,11 @@
   function initCheckboxToggle(id, styleId, css) {
     const cb = document.getElementById(id);
     if (!cb) return;
-    let isChecked = localStorage.getItem('bestTube-' + id) === 'true';
+    let isChecked = localStorage.getItem('zenTube-' + id) === 'true';
 
     const apply = () => {
-      localStorage.setItem('bestTube-' + id, isChecked);
-      bestTubeStyleManager.set(styleId, isChecked ? css : null);
+      localStorage.setItem('zenTube-' + id, isChecked);
+      zenTubeStyleManager.set(styleId, isChecked ? css : null);
       if (isChecked) cb.setAttribute('checked', '');
       else cb.removeAttribute('checked');
     };
@@ -645,9 +645,9 @@
   }
 
   function ensureButton(buttonsBar) {
-    if (!document.querySelector('#bestTube-btn')) {
-      const popup = document.querySelector('#bestTube-popup');
-      const icon = document.querySelector('#bestTube-btn-icon');
+    if (!document.querySelector('#zenTube-btn')) {
+      const popup = document.querySelector('#zenTube-popup');
+      const icon = document.querySelector('#zenTube-btn-icon');
       if (popup) popup.style.display = 'none';
       if (icon) icon.style.transform = 'rotate(0deg)';
       insertButton(buttonsBar);
@@ -655,9 +655,9 @@
   }
 
   function togglePopup(forceState = null) {
-    const btn = document.querySelector('#bestTube-btn');
-    const icon = document.querySelector('#bestTube-btn-icon');
-    const popup = document.querySelector('#bestTube-popup');
+    const btn = document.querySelector('#zenTube-btn');
+    const icon = document.querySelector('#zenTube-btn-icon');
+    const popup = document.querySelector('#zenTube-popup');
     if (!btn || !icon || !popup) return;
 
     const active = btn.dataset.active === 'true';
@@ -671,45 +671,45 @@
 
   function insertStyles() {
     const styles = document.createElement('style');
-    styles.id = 'bestTube-styles';
+    styles.id = 'zenTube-styles';
     styles.textContent = `
-      #bestTube-btn, #bestTube-popup { user-select: none; }
-      #bestTube-btn { transition: background-color .3s; margin-left: 8px; margin-right: 8px; }
-      #bestTube-btn-icon { transition: transform .3s; }
-      #bestTube-popup { position: fixed; display: none; z-index: 99999; top: 56px; right: 224px; outline: none; box-sizing: border-box; width: 341px; max-width: 480px; border-radius: 12px; overflow-x: hidden; overflow-y: auto; color: #f1f1f1; background-color: #282828; box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75); }
-      #bestTube-popup-title { border-bottom: 1px solid rgba(255,255,255,0.2); min-height: 48px; display: flex; flex-direction: row; align-items: center; }
-      #bestTube-popup-title h2 { margin-left: 16px; font-size: 1.6rem; font-weight: 400; flex: 1; }
-      #bestTube-popup-title button { width: 40px; height: 40px; background-color: transparent; border: none; cursor: pointer; margin-right: 8px; color: #f1f1f1; border-radius: 50%; transition: background-color .3s; }
-      #bestTube-popup-title button:hover { background: rgba(255, 255, 255, 0.2); }
-      #bestTube-popup-options { margin: var(--ytd-margin-4x); color: #f1f1f1; width: auto; }
-      #bestTube-popup-options .option { font-weight: 400; font-size: 1.5em; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-      #bestTube-popup-options .option:last-child { margin-bottom: 0; }
-      #bestTube-popup-options .option label { pointer-events: none; }
-      #bestTube-popup-options .toggle-container { position: relative; width: 36px; height: 14px; cursor: pointer; margin-left: 16px; }
-      #bestTube-popup-options .toggle-bar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 7px; background: #717171; transition: background 0.3s ease; }
-      #bestTube-popup-options .toggle-button { position: absolute; top: -3px; left: 0; width: 20px; height: 20px; border-radius: 50%; background-color: #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); transition: transform 0.3s ease; }
-      #bestTube-popup-options .toggle-container[checked] .toggle-bar { background: linear-gradient(90deg,#f03 80%,#ff2791); }
-      #bestTube-popup-options .toggle-container[checked] .toggle-button { transform: translateX(16px); }
-      @media (max-width: 765px) { #bestTube-btn { width: 36px; padding: 0; } #bestTube-btn-text { display: none; } #bestTube-btn-icon { margin: 0; } }
-      @media (max-width: 656px) { #bestTube-btn { background: transparent; } #bestTube-btn:hover { background: rgba(255, 255, 255, 0.2); } }
+      #zenTube-btn, #zenTube-popup { user-select: none; }
+      #zenTube-btn { transition: background-color .3s; margin-left: 8px; margin-right: 8px; }
+      #zenTube-btn-icon { transition: transform .3s; }
+      #zenTube-popup { position: fixed; display: none; z-index: 99999; top: 56px; right: 224px; outline: none; box-sizing: border-box; width: 341px; max-width: 480px; border-radius: 12px; overflow-x: hidden; overflow-y: auto; color: #f1f1f1; background-color: #282828; box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75); }
+      #zenTube-popup-title { border-bottom: 1px solid rgba(255,255,255,0.2); min-height: 48px; display: flex; flex-direction: row; align-items: center; }
+      #zenTube-popup-title h2 { margin-left: 16px; font-size: 1.6rem; font-weight: 400; flex: 1; }
+      #zenTube-popup-title button { width: 40px; height: 40px; background-color: transparent; border: none; cursor: pointer; margin-right: 8px; color: #f1f1f1; border-radius: 50%; transition: background-color .3s; }
+      #zenTube-popup-title button:hover { background: rgba(255, 255, 255, 0.2); }
+      #zenTube-popup-options { margin: var(--ytd-margin-4x); color: #f1f1f1; width: auto; }
+      #zenTube-popup-options .option { font-weight: 400; font-size: 1.5em; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+      #zenTube-popup-options .option:last-child { margin-bottom: 0; }
+      #zenTube-popup-options .option label { pointer-events: none; }
+      #zenTube-popup-options .toggle-container { position: relative; width: 36px; height: 14px; cursor: pointer; margin-left: 16px; }
+      #zenTube-popup-options .toggle-bar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 7px; background: #717171; transition: background 0.3s ease; }
+      #zenTube-popup-options .toggle-button { position: absolute; top: -3px; left: 0; width: 20px; height: 20px; border-radius: 50%; background-color: #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); transition: transform 0.3s ease; }
+      #zenTube-popup-options .toggle-container[checked] .toggle-bar { background: linear-gradient(90deg,#f03 80%,#ff2791); }
+      #zenTube-popup-options .toggle-container[checked] .toggle-button { transform: translateX(16px); }
+      @media (max-width: 765px) { #zenTube-btn { width: 36px; padding: 0; } #zenTube-btn-text { display: none; } #zenTube-btn-icon { margin: 0; } }
+      @media (max-width: 656px) { #zenTube-btn { background: transparent; } #zenTube-btn:hover { background: rgba(255, 255, 255, 0.2); } }
     `;
     document.head.appendChild(styles);
   }
 
   function insertButton(buttonsBar) {
     const btn = document.createElement('button');
-    btn.id = 'bestTube-btn';
-    btn.title = 'BestTube Extension';
+    btn.id = 'zenTube-btn';
+    btn.title = 'ZenTube Extension';
     btn.className =
       'ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlay ytSpecButtonShapeNextSizeM ytSpecButtonShapeNextIconLeading ytSpecButtonShapeNextEnableBackdropFilterExperiment';
     const iconBtn = document.createElement('span');
-    iconBtn.id = 'bestTube-btn-icon';
+    iconBtn.id = 'zenTube-btn-icon';
     iconBtn.className = 'ytSpecButtonShapeNextIcon';
     iconBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" transform="matrix(-1.8369701987210297e-16,-1,1,-1.8369701987210297e-16,0,0)"><path fill="currentColor" d="m9.55 12l7.35 7.35q.375.375.363.875t-.388.875q-.375.375-.875.375t-.875-.375l-7.7-7.675q-.3-.3-.45-.675t-.15-.75q0-.375.15-.75t.45-.675l7.7-7.7q.375-.375.888-.363t.887.388q.375.375.375.875t-.375.875L9.55 12Z"></path></svg>`;
     const textBtn = document.createElement('div');
-    textBtn.id = 'bestTube-btn-text';
+    textBtn.id = 'zenTube-btn-text';
     textBtn.className = 'yt-spec-button-shape-next__button-text-content';
-    textBtn.innerHTML = `<span>BestTube</span>`;
+    textBtn.innerHTML = `<span>ZenTube</span>`;
     btn.appendChild(iconBtn);
     btn.appendChild(textBtn);
     btn.dataset.active = 'false';
@@ -718,7 +718,7 @@
   }
 
   function insertPopup() {
-    if (!document.querySelector('#bestTube-popup')) {
+    if (!document.querySelector('#zenTube-popup')) {
       const createToggleHtml = (id, label) => `
         <div class="option">
           <label>${label}</label>
@@ -726,13 +726,13 @@
         </div>`;
 
       const popup = document.createElement('div');
-      popup.id = 'bestTube-popup';
+      popup.id = 'zenTube-popup';
       popup.innerHTML = `
-        <div id="bestTube-popup-title">
-          <h2>BestTube</h2>
+        <div id="zenTube-popup-title">
+          <h2>ZenTube</h2>
           <button><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M17.293 5.293 12 10.586 6.707 5.293a1 1 0 10-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 001.414 1.414L12 13.414l5.293 5.293a1 1 0 001.414-1.414L13.414 12l5.293-5.293a1 1 0 10-1.414-1.414Z"></path></svg></button>
         </div>
-        <div id="bestTube-popup-options">
+        <div id="zenTube-popup-options">
           ${createToggleHtml('remove-player-ads', 'Remove Player Ads')}
           ${createToggleHtml('remove-ads', 'Remove Ads')}
           ${createToggleHtml('responsive-rows', 'Responsive Rows')}
@@ -745,11 +745,11 @@
       document.body.appendChild(popup);
 
       popup
-        .querySelector('#bestTube-popup-title button')
+        .querySelector('#zenTube-popup-title button')
         .addEventListener('click', () => togglePopup(false));
       document.addEventListener('click', (e) => {
-        const p = document.querySelector('#bestTube-popup');
-        const b = document.querySelector('#bestTube-btn');
+        const p = document.querySelector('#zenTube-popup');
+        const b = document.querySelector('#zenTube-btn');
         if (
           p &&
           b &&
@@ -762,34 +762,34 @@
 
       initCheckboxToggle(
         'remove-player-ads',
-        'bestTube-remove-player-ads',
+        'zenTube-remove-player-ads',
         cssHideOriginalPlayer,
       );
-      initCheckboxToggle('remove-ads', 'bestTube-remove-ads', cssRemoveAds);
+      initCheckboxToggle('remove-ads', 'zenTube-remove-ads', cssRemoveAds);
       initCheckboxToggle(
         'responsive-rows',
-        'bestTube-responsive-rows',
+        'zenTube-responsive-rows',
         cssResponsiveRows,
       );
       initCheckboxToggle(
         'remove-members',
-        'bestTube-remove-members',
+        'zenTube-remove-members',
         cssRemoveMembers,
       );
       initCheckboxToggle(
         'remove-shorts',
-        'bestTube-remove-shorts',
+        'zenTube-remove-shorts',
         cssRemoveShorts,
       );
-      initCheckboxToggle('remove-news', 'bestTube-remove-news', cssRemoveNews);
+      initCheckboxToggle('remove-news', 'zenTube-remove-news', cssRemoveNews);
       initCheckboxToggle(
         'remove-recommended',
-        'bestTube-remove-recommended',
+        'zenTube-remove-recommended',
         cssRemoveRecommended,
       );
       initCheckboxToggle(
         'remove-super-thanks',
-        'bestTube-remove-super-thanks',
+        'zenTube-remove-super-thanks',
         cssRemoveSuperThanks,
       );
 
@@ -822,14 +822,14 @@
 
   function initCustomPlayer() {
     const isEnabled =
-      localStorage.getItem('bestTube-remove-player-ads') === 'true';
+      localStorage.getItem('zenTube-remove-player-ads') === 'true';
     if (isEnabled) setupCustomPlayer();
 
     const toggleContainer = document.getElementById('remove-player-ads');
     if (toggleContainer) {
       toggleContainer.addEventListener('click', function () {
         setTimeout(() => {
-          if (localStorage.getItem('bestTube-remove-player-ads') === 'true') {
+          if (localStorage.getItem('zenTube-remove-player-ads') === 'true') {
             setupCustomPlayer();
           } else {
             removeCustomPlayer();
@@ -842,7 +842,7 @@
     const urlObserver = new MutationObserver(() => {
       if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
-        if (localStorage.getItem('bestTube-remove-player-ads') === 'true') {
+        if (localStorage.getItem('zenTube-remove-player-ads') === 'true') {
           setTimeout(() => {
             removeCustomPlayer();
             setupCustomPlayer();
@@ -870,21 +870,21 @@
   }
 
   function createCustomPlayer() {
-    if (document.getElementById('bestTube-custom-player')) return;
+    if (document.getElementById('zenTube-custom-player')) return;
 
     const videoId = getVideoIdFromUrl();
     if (!videoId) return;
 
     const playerContainer = document.createElement('div');
-    playerContainer.id = 'bestTube-custom-player';
+    playerContainer.id = 'zenTube-custom-player';
     playerContainer.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #000 !important; z-index: 10000 !important;`;
 
     const urlParams = new URLSearchParams(window.location.search);
     const startTime = urlParams.get('t') || '0';
 
-    const wikimediaUrl = `https://www.wikimedia.org/?bestTubeEmbed=${videoId}&t=${startTime}`;
+    const wikimediaUrl = `https://www.wikimedia.org/?zenTubeEmbed=${videoId}&t=${startTime}`;
     const wikimediaIframe = document.createElement('iframe');
-    wikimediaIframe.id = 'bestTube-wikimedia-iframe';
+    wikimediaIframe.id = 'zenTube-wikimedia-iframe';
     wikimediaIframe.src = wikimediaUrl;
     wikimediaIframe.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none !important; background: #000 !important; z-index: 1 !important;`;
     wikimediaIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -907,7 +907,7 @@
   }
 
   function togglePlayPause() {
-    const iframe = document.getElementById('bestTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenTube-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         '{"event":"command","func":"pauseVideo","args":""}',
@@ -916,13 +916,13 @@
   }
 
   function toggleControls() {
-    const overlay = document.getElementById('bestTube-play-pause-overlay');
+    const overlay = document.getElementById('zenTube-play-pause-overlay');
     if (overlay)
       overlay.style.opacity = overlay.style.opacity === '1' ? '0' : '1';
   }
 
   function toggleFullscreen() {
-    const playerContainer = document.getElementById('bestTube-custom-player');
+    const playerContainer = document.getElementById('zenTube-custom-player');
     if (playerContainer) {
       if (!document.fullscreenElement)
         playerContainer.requestFullscreen().catch(() => {});
@@ -931,7 +931,7 @@
   }
 
   function setYoutubePlayerTime(time) {
-    const iframe = document.getElementById('bestTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenTube-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         `{"event":"command","func":"seekTo","args":[${parseInt(time)},true]}`,
@@ -941,7 +941,7 @@
 
   function setupPlayerEventListeners() {
     document.addEventListener('keydown', function (e) {
-      if (!document.getElementById('bestTube-custom-player')) return;
+      if (!document.getElementById('zenTube-custom-player')) return;
       switch (e.key.toLowerCase()) {
         case 'k':
         case ' ':
@@ -969,7 +969,7 @@
   }
 
   function toggleMute() {
-    const iframe = document.getElementById('bestTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenTube-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         '{"event":"command","func":"mute","args":""}',
@@ -978,7 +978,7 @@
   }
 
   function seekRelative(seconds) {
-    const iframe = document.getElementById('bestTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenTube-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         `{"event":"command","func":"seekBy","args":[${seconds}]}`,
@@ -987,7 +987,7 @@
   }
 
   function removeCustomPlayer() {
-    const player = document.getElementById('bestTube-custom-player');
+    const player = document.getElementById('zenTube-custom-player');
     if (player) player.remove();
 
     setOriginalVideoMute(false);
@@ -998,20 +998,38 @@
   }
 
   function injectPlayerStyles() {
-    if (document.getElementById('bestTube-player-styles')) return;
+    if (document.getElementById('zenTube-player-styles')) return;
     const style = document.createElement('style');
-    style.id = 'bestTube-player-styles';
+    style.id = 'zenTube-player-styles';
     style.textContent = `
-      body.bestTube-custom-player-active .ytp-chrome-top, body.bestTube-custom-player-active .ytp-chrome-bottom,
-      body.bestTube-custom-player-active .ytp-ce-element, body.bestTube-custom-player-active .ytp-gradient-top,
-      body.bestTube-custom-player-active .ytp-gradient-bottom, body.bestTube-custom-player-active .ytp-progress-bar-container,
-      body.bestTube-custom-player-active .ytp-chrome-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; }
-      #bestTube-custom-player { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #000 !important; z-index: 10000 !important; }
-      #bestTube-custom-player + * video { opacity: 0 !important; visibility: hidden !important; }
-      #bestTube-play-pause-overlay:hover { opacity: 1 !important; }
+      body.zenTube-custom-player-active .ytp-chrome-top, body.zenTube-custom-player-active .ytp-chrome-bottom,
+      body.zenTube-custom-player-active .ytp-ce-element, body.zenTube-custom-player-active .ytp-gradient-top,
+      body.zenTube-custom-player-active .ytp-gradient-bottom, body.zenTube-custom-player-active .ytp-progress-bar-container,
+      body.zenTube-custom-player-active .ytp-chrome-controls {
+        display: none !important; opacity: 0 !important; visibility: hidden !important;
+      }
+      
+      #zenTube-custom-player {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: #000 !important;
+        z-index: 10000 !important;
+      }
+      
+      #zenTube-custom-player + * video {
+        opacity: 0 !important;
+        visibility: hidden !important;
+      }
+      
+      #zenTube-play-pause-overlay:hover {
+        opacity: 1 !important;
+      }
     `;
     document.head.appendChild(style);
   }
 
-  console.log(`BestTube v${version}`);
+  console.log(`ZenTube v${version}`);
 })();
