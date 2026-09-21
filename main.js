@@ -10,12 +10,250 @@
         requestAnimationFrame(injectEmbedCSS);
         return;
       }
+
       const style = document.createElement('style');
       style.id = 'bestTube-embed-styles';
       style.textContent = `
+        /* Ocultar el título/detalles originales y menús flotantes */
         [id*='player'] embedded-player-video-details,
         [id*='player'] .fullscreen-action-menu {
           display: none !important;
+        }
+
+        /* Ocultar las cajas de YouTube para colocar los botones libremente */
+        ytm-custom-control .player-controls-top,
+        ytm-custom-control .player-controls-middle,
+        ytm-custom-control .player-controls-bottom,
+        .player-controls-top-right,
+        .player-controls-bottom-left,
+        .player-controls-bottom-right {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          transform: none !important;
+          pointer-events: none !important;
+          display: block !important;
+        }
+
+        /* BOTONES /*
+        /*---------*/
+
+        /* 1. Botón Play/Pause (Anclado a la izquierda) */
+        ytm-custom-control .player-controls-middle-core-buttons {
+          position: absolute !important;
+          left: 0 !important;
+          bottom: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          margin: 0 !important;
+          z-index: 50 !important;
+          pointer-events: auto !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+
+        .player-control-play-pause-icon {
+          background: transparent !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+
+        .player-control-play-pause-icon c3-icon {
+          width: 24px !important;
+          height: 24px !important;
+          padding: 0 !important;
+        }
+
+        .ytwPlayerMiddleControlsA11ySeekButton {
+          display: none !important;
+        }
+
+        /* 2. Volumen (Anclado a la izquierda, después del Play) */
+        volume-controls.ytdVolumeControlsHost {
+          position: absolute !important;
+          left: 48px !important;
+          bottom: 0 !important;
+          height: 48px !important;
+          width: auto !important;
+          margin: 0 !important;
+          z-index: 50 !important;
+          pointer-events: auto !important;
+        }
+
+        .ytdVolumeControlsVolumeControlsContainerVertical {
+          flex-direction: row !important;
+          height: 48px !important;
+          width: auto !important;
+          max-width: none !important;
+          gap: 0 !important;
+          background: transparent !important;
+        }
+
+        .ytdVolumeControlsSliderContainerVertical {
+          transform: none !important; 
+          height: 48px !important;
+          min-height: 48px !important;
+          width: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          background: transparent !important;
+          transition: width 0.3s ease, padding 0.3s, opacity 0.3s !important;
+          display: flex !important;
+          align-items: center !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+        }
+
+        volume-controls:hover .ytdVolumeControlsSliderContainerVertical,
+        .ytdVolumeControlsSliderContainerVerticalExpanded {
+          width: 75px !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+
+        .ytdVolumeControlsNativeSlider {
+          width: 100% !important;
+          height: 4px !important;
+        }
+
+        /* 3. Tiempo y Capítulos (Anclado a la izquierda, desplazable) */
+        player-time-display.ytwPlayerTimeDisplayHost {
+          position: absolute !important;
+          left: 96px !important;
+          bottom: 0 !important;
+          height: 48px !important;
+          display: flex !important;
+          align-items: center !important;
+          transition: left 0.3s ease !important;
+          z-index: 50 !important;
+          pointer-events: auto !important;
+        }
+
+        /* Mover a la derecha al hacer hover en el volumen */
+        body:has(volume-controls:hover) player-time-display.ytwPlayerTimeDisplayHost,
+        body:has(.ytdVolumeControlsSliderContainerVerticalExpanded) player-time-display.ytwPlayerTimeDisplayHost {
+          left: 176px !important;
+        }
+
+        .ytwPlayerTimeDisplayPill {
+          background: transparent !important;
+          text-shadow: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* 4. Fullscreen (Anclado a la derecha) */
+        .ytwPlayerBottomControlsFullscreenButtonWrapper {
+          position: absolute !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          margin: 0 !important;
+          z-index: 60 !important;
+          pointer-events: auto !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+
+        .ytwPlayerBottomControlsFullscreenButtonWrapper button {
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          background: transparent !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+
+        .player-bottom-controls-fullscreen-icon-visible-area {
+          background: transparent !important;
+          padding: 0 !important;
+          width: 24px !important;
+          height: 24px !important;
+          border-radius: 0 !important;
+        }
+
+        .player-bottom-controls-fullscreen-icon-visible-area svg {
+          width: 24px !important;
+          height: 24px !important;
+        }
+
+        /* 5. Ajustes (Anclado a la derecha, al lado del Fullscreen) */
+        .player-settings-icon {
+          position: absolute !important;
+          right: 48px !important;
+          bottom: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          margin: 0 !important;
+          padding: 12px !important;
+          z-index: 50 !important;
+          pointer-events: auto !important;
+          box-sizing: border-box !important;
+        }
+
+        /* 6. Subtítulos (Anclado a la derecha, al lado de los Ajustes) */
+        yt-closed-captions-toggle-button {
+          position: absolute !important;
+          right: 96px !important;
+          bottom: 0 !important;
+          width: 48px !important;
+          height: 48px !important;
+          margin: 0 !important;
+          z-index: 50 !important;
+          pointer-events: auto !important;
+        }
+
+        /* 7. Barra de Progreso (Sobre los controles) */
+        body[faux-fullscreen=true] .watch-page-progress-bar,
+        .fullscreen-controls-always-on .watch-page-progress-bar,
+        .watch-page-progress-bar,
+        yt-progress-bar.ytPlayerProgressBarHost {
+          position: absolute !important;
+          bottom: 48px !important;
+          height: 5px !important;
+          left: 12px !important;
+          right: 12px !important;
+          padding: 0 !important;
+          z-index: 60 !important;
+          pointer-events: auto !important;
+        }
+
+        .ytChapteredProgressBarChapteredPlayerBarChapter,
+        .ytChapteredProgressBarChapteredPlayerBarLoaded,
+        .ytChapteredProgressBarChapteredPlayerBarFill { 
+          height: 3px !important; 
+        }
+
+        /* 8. Degradado oscuro del fondo */
+        #player-control-overlay .player-controls-background {
+          position: absolute !important;
+          background: linear-gradient(to top, rgba(0,0,0,0.8) 0px, rgba(0,0,0,0.4) 50px, rgba(0,0,0,0) 100px) !important;
+          bottom: 0 !important;
+          height: 100px !important;
+          top: auto !important;
+          pointer-events: none !important;
+          z-index: 0 !important;
+        }
+
+        /* 9. Previsualización al hacer hover (Sobre la barra de progreso, más bajo) */
+        .ytPlayerStoryboardHost {
+          bottom: 50px !important;
         }
       `;
       document.head.appendChild(style);
@@ -34,17 +272,12 @@
     const startTime = urlParams.get('t') || '0';
 
     if (videoId) {
-      document.documentElement.innerHTML = `
-        <head><title>BestTube Player</title></head>
-        <body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>
-      `;
+      document.documentElement.innerHTML = `<body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>`;
       const ytIframe = document.createElement('iframe');
       ytIframe.id = 'bestTube-youtube-iframe';
       ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTime}`;
-      ytIframe.style.cssText =
-        'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
-      ytIframe.allow =
-        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      ytIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
+      ytIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       ytIframe.allowFullscreen = true;
       document.body.appendChild(ytIframe);
 
@@ -130,16 +363,101 @@
   `;
 
   const cssResponsiveRows = `
-    ytd-rich-item-renderer[rendered-from-rich-grid] { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
-    @media (min-width: 530px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 900px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 1300px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 1650px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 2168px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 2416px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 2664px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 2912px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
-    @media (min-width: 3160px) { ytd-rich-item-renderer[rendered-from-rich-grid] { width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important; margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important; margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important; } }
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    @media (min-width: 530px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 900px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 1300px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 1650px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 2168px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 2416px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 2664px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 2912px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+
+    @media (min-width: 3160px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(
+          10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20
+        ) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
   `;
 
   const cssRemoveMembers = `
@@ -514,8 +832,7 @@
     wikimediaIframe.id = 'bestTube-wikimedia-iframe';
     wikimediaIframe.src = wikimediaUrl;
     wikimediaIframe.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none !important; background: #000 !important; z-index: 1 !important;`;
-    wikimediaIframe.allow =
-      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    wikimediaIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     wikimediaIframe.allowFullscreen = true;
 
     playerContainer.appendChild(wikimediaIframe);
