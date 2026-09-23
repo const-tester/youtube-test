@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.6';
+  const version = '0.4.7';
 
   // ============================================================
   //  CONSTANTS AND CSS BLOCKS
@@ -291,6 +291,31 @@
 
   function getVideoIdFromUrl() {
     return new URLSearchParams(window.location.search).get('v');
+  }
+
+  function parseToSeconds(timeStr) {
+    if (!timeStr) return 0;
+    timeStr = timeStr.toString();
+    if (/^\d+$/.test(timeStr)) return parseInt(timeStr, 10);
+    
+    let sec = 0;
+    const h = timeStr.match(/(\d+)h/);
+    const m = timeStr.match(/(\d+)m/);
+    const s = timeStr.match(/(\d+)s/);
+    
+    if (h) sec += parseInt(h[1], 10) * 3600;
+    if (m) sec += parseInt(m[1], 10) * 60;
+    if (s) sec += parseInt(s[1], 10);
+    
+    return sec || parseInt(timeStr, 10) || 0;
+  }
+
+  function formatToXmXs(timeStr) {
+    if (!timeStr || timeStr === '0') return '0m0s';
+    let sec = parseToSeconds(timeStr);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m + 'm' + s + 's';
   }
 
   // ============================================================
@@ -614,13 +639,16 @@
   if (window.location.hostname.includes('wikimedia.org')) {
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('zenifiedEmbed');
-    const startTime = urlParams.get('t') || '0';
+    const startTimeStr = urlParams.get('t') || '0';
+    
+    // YouTube embed API start parameter strictly requires seconds (integer)
+    const startTimeSeconds = parseToSeconds(startTimeStr);
 
     if (videoId) {
       document.documentElement.innerHTML = `<body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>`;
       const ytIframe = document.createElement('iframe');
       ytIframe.id = 'zenified-youtube-iframe';
-      ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTime}`;
+      ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTimeSeconds}`;
       ytIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
       ytIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       ytIframe.allowFullscreen = true;
@@ -1051,9 +1079,12 @@
     playerContainer.style.cssText = `position: absolute !important; background: #000 !important; z-index: 1999 !important;`;
 
     const urlParams = new URLSearchParams(window.location.search);
-    const startTime = urlParams.get('t') || '0';
+    const rawStartTime = urlParams.get('t') || '0';
+    
+    // Formatting the iframe parameter exactly to XmXs as requested
+    const formattedStartTime = formatToXmXs(rawStartTime);
 
-    const wikimediaUrl = `https://www.wikimedia.org/?zenifiedEmbed=${videoId}&t=${startTime}`;
+    const wikimediaUrl = `https://www.wikimedia.org/?zenifiedEmbed=${videoId}&t=${formattedStartTime}`;
     const wikimediaIframe = document.createElement('iframe');
     wikimediaIframe.id = 'zenified-wikimedia-iframe';
     wikimediaIframe.src = wikimediaUrl;
@@ -1102,8 +1133,8 @@
       positionSyncInterval = setInterval(syncPlayerPosition, 200);
       window.addEventListener('resize', syncPlayerPosition);
 
-      if (startTime !== '0')
-        setTimeout(() => setYoutubePlayerTime(startTime), 2000);
+      if (rawStartTime !== '0')
+        setTimeout(() => setYoutubePlayerTime(formattedStartTime), 2000);
     }
 
     injectPlayerStyles();
@@ -1132,9 +1163,10 @@
 
   function setYoutubePlayerTime(time) {
     const iframe = document.getElementById('zenified-wikimedia-iframe');
+    const seconds = parseToSeconds(time);
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
-        `{"event":"command","func":"seekTo","args":[${parseInt(time)},true]}`,
+        `{"event":"command","func":"seekTo","args":[${seconds},true]}`,
         '*',
       );
   }
