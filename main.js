@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.7';
+  const version = '0.4.8';
 
   // ============================================================
   //  CONSTANTS AND CSS BLOCKS
@@ -15,7 +15,7 @@
     ytd-in-feed-ad-layout-renderer,
     ytd-ad-slot-renderer,
     ytd-statement-banner-renderer,
-    ytd-banner-promo-renderer-background, /* FIXED: Missing comma */
+    ytd-banner-promo-renderer-background,
     ytd-ad-slot-renderer,
     ytd-in-feed-ad-layout-renderer,
     ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts):not([target-id="engagement-panel-macro-markers-description-chapters"]):not([target-id="engagement-panel-searchable-transcript"]),
@@ -42,7 +42,7 @@
     ytm-in-feed-ad-layout-renderer,
     ytm-ad-slot-renderer,
     ytm-statement-banner-renderer,
-    ytm-banner-promo-renderer-background, /* FIXED: Missing comma */
+    ytm-banner-promo-renderer-background,
     ytm-ad-slot-renderer,
     ytm-in-feed-ad-layout-renderer,
     ytm-compact-video-renderer:has(.goodTube_hidden),
@@ -1040,11 +1040,34 @@
     const urlObserver = new MutationObserver(() => {
       if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
+        
         if (localStorage.getItem('zenified-remove-player-ads') === 'true') {
-          setTimeout(() => {
+          const videoId = getVideoIdFromUrl();
+          
+          if (!videoId) {
+            // User went to the home page or a non-video page
             removeCustomPlayer();
-            setupCustomPlayer();
-          }, 500);
+          } else {
+            const iframe = document.getElementById('zenified-wikimedia-iframe');
+            
+            // If the iframe exists, recycle it instead of destroying/recreating it
+            if (iframe) {
+              const rawStartTime = new URLSearchParams(window.location.search).get('t') || '0';
+              const formattedStartTime = formatToXmXs(rawStartTime);
+              const newSrc = `https://www.wikimedia.org/?zenifiedEmbed=${videoId}&t=${formattedStartTime}`;
+              
+              if (iframe.src !== newSrc) {
+                iframe.style.opacity = '0'; // Hide briefly until the new video loads
+                iframe.src = newSrc;
+                
+                // Mute native player again in case YouTube recreated it natively
+                setTimeout(() => setOriginalVideoMute(true), 100);
+                setTimeout(() => setOriginalVideoMute(true), 1000);
+              }
+            } else {
+              setupCustomPlayer();
+            }
+          }
         } else {
           removeCustomPlayer();
         }
@@ -1094,26 +1117,22 @@
 
     playerContainer.appendChild(wikimediaIframe);
 
-    // Show iframe safely
-    let readyFired = false;
-    const showIframe = () => {
-      if (readyFired) return;
-      readyFired = true;
-      const iframe = document.getElementById('zenified-wikimedia-iframe');
-      if (iframe) iframe.style.opacity = '1';
-    };
-
-    // Listen message from Wikimedia
-    window.addEventListener('message', function onWikimediaReady(event) {
-      if (event.data === 'ZENIFIED_WIKIMEDIA_READY') {
-        showIframe();
-        // Clear event listener after receiving the message
-        window.removeEventListener('message', onWikimediaReady);
-      }
-    });
+    // Listen message from Wikimedia persistently
+    if (!window.zenifiedMessageListenerAdded) {
+      window.addEventListener('message', (event) => {
+        if (event.data === 'ZENIFIED_WIKIMEDIA_READY') {
+          const iframe = document.getElementById('zenified-wikimedia-iframe');
+          if (iframe) iframe.style.opacity = '1';
+        }
+      });
+      window.zenifiedMessageListenerAdded = true;
+    }
 
     // Fallback: Show iframe after 2 seconds if no message is received
-    setTimeout(showIframe, 2000);
+    setTimeout(() => {
+      const iframe = document.getElementById('zenified-wikimedia-iframe');
+      if (iframe) iframe.style.opacity = '1';
+    }, 2000);
 
     const moviePlayer = document.querySelector('#movie_player');
     if (moviePlayer) {
