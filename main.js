@@ -1,8 +1,8 @@
 (function () {
-  const version = '0.4.3';
+  const version = '0.4.4';
 
   // ============================================================
-  //  1. MODO YOUTUBE EMBED
+  //  1. YOUTUBE EMBED MODE
   // ============================================================
   if (window.location.pathname.startsWith('/embed/')) {
     const injectEmbedCSS = () => {
@@ -12,15 +12,15 @@
       }
 
       const style = document.createElement('style');
-      style.id = 'zenTube-embed-styles';
+      style.id = 'zenified-embed-styles';
       style.textContent = `
-        /* Ocultar el título/detalles originales y menús flotantes */
+        /* Hide original title/details and floating menus */
         [id*='player'] embedded-player-video-details,
         [id*='player'] .fullscreen-action-menu {
           display: none !important;
         }
 
-        /* Ocultar las cajas de YouTube para colocar los botones libremente */
+        /* Hide YouTube divs to place buttons freely */
         ytm-custom-control .player-controls-top,
         ytm-custom-control .player-controls-middle,
         ytm-custom-control .player-controls-bottom,
@@ -41,10 +41,10 @@
           display: block !important;
         }
 
-        /* BOTONES /*
+        /* BUTTONS /*
         /*---------*/
 
-        /* 1. Botón Play/Pause (Anclado a la izquierda) */
+        /* 1. Play/Pause button (Anchored to the left) */
         ytm-custom-control .player-controls-middle-core-buttons {
           position: absolute !important;
           left: 0 !important;
@@ -80,7 +80,7 @@
           display: none !important;
         }
 
-        /* 2. Volumen (Anclado a la izquierda, después del Play) */
+        /* 2. Volume (Anchored to the left, after Play) */
         volume-controls.ytdVolumeControlsHost {
           position: absolute !important;
           left: 48px !important;
@@ -128,7 +128,7 @@
           height: 4px !important;
         }
 
-        /* 3. Tiempo y Capítulos (Anclado a la izquierda, desplazable) */
+        /* 3. Time and Chapters (Anchored to the left, scrollable) */
         player-time-display.ytwPlayerTimeDisplayHost {
           position: absolute !important;
           left: 96px !important;
@@ -141,7 +141,7 @@
           pointer-events: auto !important;
         }
 
-        /* Mover a la derecha al hacer hover en el volumen */
+        /* Move to the right when hovering over the volume */
         body:has(volume-controls:hover) player-time-display.ytwPlayerTimeDisplayHost,
         body:has(.ytdVolumeControlsSliderContainerVerticalExpanded) player-time-display.ytwPlayerTimeDisplayHost {
           left: 176px !important;
@@ -154,7 +154,7 @@
           margin: 0 !important;
         }
 
-        /* 4. Fullscreen (Anclado a la derecha) */
+        /* 4. Fullscreen (Anchored to the right) */
         .ytwPlayerBottomControlsFullscreenButtonWrapper {
           position: absolute !important;
           right: 0 !important;
@@ -193,7 +193,7 @@
           height: 24px !important;
         }
 
-        /* 5. Ajustes (Anclado a la derecha, al lado del Fullscreen) */
+        /* 5. Settings (Anchored to the right, next to Fullscreen) */
         .player-settings-icon {
           position: absolute !important;
           right: 48px !important;
@@ -207,7 +207,7 @@
           box-sizing: border-box !important;
         }
 
-        /* 6. Subtítulos (Anclado a la derecha, al lado de los Ajustes) */
+        /* 6. Subtitles (Anchored to the right, next to Settings) */
         yt-closed-captions-toggle-button {
           position: absolute !important;
           right: 96px !important;
@@ -219,7 +219,7 @@
           pointer-events: auto !important;
         }
 
-        /* 7. Barra de Progreso (Sobre los controles) */
+        /* 7. Progress Bar (Over the controls) */
         body[faux-fullscreen=true] .watch-page-progress-bar,
         .fullscreen-controls-always-on .watch-page-progress-bar,
         .watch-page-progress-bar,
@@ -240,7 +240,7 @@
           height: 3px !important; 
         }
 
-        /* 8. Degradado oscuro del fondo */
+        /* 8. Dark gradient on the background */
         #player-control-overlay .player-controls-background {
           position: absolute !important;
           background: linear-gradient(to top, rgba(0,0,0,0.8) 0px, rgba(0,0,0,0.4) 50px, rgba(0,0,0,0) 100px) !important;
@@ -251,12 +251,12 @@
           z-index: 0 !important;
         }
 
-        /* 9. Previsualización al hacer hover (Sobre la barra de progreso, más bajo) */
+        /* 9. Preview on hover (Over the progress bar, lower) */
         .ytPlayerStoryboardHost {
           bottom: 50px !important;
         }
 
-        /* 10. Mejorar popup de opciones */
+        /* 10. Improve options popup */
         #bottom-sheet-wrapper .ytWebScrimHostBottomSheet {
           background-color: transparent !important;
         }
@@ -289,16 +289,16 @@
           opacity: unset !important;
         }
         
-        /* Scrollbar menu opciones Firefox */
+        /* Scrollbar options menu Firefox */
         .ytSpecBottomSheetLayoutContentWrapper {
           scrollbar-width: thin;
           scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
         }
         
-        /* 2. Scrollbar menu opciones Chromium */
+        /* Scrollbar options menu Chromium */
         .ytSpecBottomSheetLayoutContentWrapper::-webkit-scrollbar {
-          width: 6px; /* Ancho del scrollbar vertical */
-          height: 6px; /* Alto del scrollbar horizontal (por si aplica) */
+          width: 6px;
+          height: 6px;
         }
         
         .ytSpecBottomSheetLayoutContentWrapper::-webkit-scrollbar-track {
@@ -318,24 +318,27 @@
   }
 
   // ============================================================
-  //  2. MODO PROXY WIKIMEDIA
+  //  2. WIKIMEDIA PROXY MODE
   // ============================================================
   if (window.location.hostname.includes('wikimedia.org')) {
     const urlParams = new URLSearchParams(window.location.search);
-    const videoId = urlParams.get('zenTubeEmbed');
+    const videoId = urlParams.get('zenifiedEmbed');
     const startTime = urlParams.get('t') || '0';
 
     if (videoId) {
       document.documentElement.innerHTML = `<body style="margin:0;padding:0;overflow:hidden;background:#000;width:100vw;height:100vh;"></body>`;
       const ytIframe = document.createElement('iframe');
-      ytIframe.id = 'zenTube-youtube-iframe';
+      ytIframe.id = 'zenified-youtube-iframe';
       ytIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&start=${startTime}`;
       ytIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
       ytIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       ytIframe.allowFullscreen = true;
       document.body.appendChild(ytIframe);
 
-      // Puente para los controles de pausa, volumen, etc.
+      // Notify YouTube that the screen is already black
+      window.parent.postMessage('ZENIFIED_WIKIMEDIA_READY', '*');
+
+      // Bridge for pause, volume, and other controls
       window.addEventListener('message', (event) => {
         if (event.source === window.parent && ytIframe.contentWindow) {
           ytIframe.contentWindow.postMessage(event.data, '*');
@@ -350,7 +353,7 @@
   }
 
   // ============================================================
-  //  3. MODO YOUTUBE PRINCIPAL
+  //  3. YOUTUBE MAIN MODE
   // ============================================================
   const cssRemoveAds = `
     .ytd-search ytd-shelf-renderer,
@@ -423,92 +426,74 @@
       margin-left: 0 !important;
       margin-right: 0 !important;
     }
-
+    
     @media (min-width: 530px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4
-        ) !important;
+        width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 900px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6
-        ) !important;
+        width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 1300px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8
-        ) !important;
+        width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 1650px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10
-        ) !important;
+        width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 2168px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12
-        ) !important;
+        width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 2416px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14
-        ) !important;
+        width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 2664px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16
-        ) !important;
+        width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 2912px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18
-        ) !important;
+        width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
     }
-
+    
     @media (min-width: 3160px) {
       ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(
-          10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20
-        ) !important;
+        width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
       }
@@ -516,16 +501,31 @@
   `;
 
   const cssRemoveMembers = `
+    /* Join button on video */
     #below ytd-watch-metadata #top-row #owner ytd-video-owner-renderer #sponsor-button,
+
+    /* "0€ el primer mes" on channel */
     ytd-browse #header #page-header yt-attribution-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* "Unirme" on channel */
     ytd-browse #header #page-header yt-flexible-actions-view-model [class*='ytFlexibleActionsViewModelAction']:has(path[d^='M12 23c6.075 0 11-4.925 11-11S18.075']),
+    
+    /* "Nuestros miembros" on channel */
     ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
+
+    /* "Vídeos exclusivos para miembros" on channel */
     ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
     ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* "Miembros primero" tag on video description */
     #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#'],
     #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#']+span,
+    
+    /* Videos on feed */
     ytd-rich-item-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
     ytd-rich-item-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* Videos on video */
     yt-lockup-view-model:has(path[d^='M6 .5a5.5 5.5 0 100']),
     yt-lockup-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']) {
       display: none !important;
@@ -533,50 +533,78 @@
   `;
 
   const cssRemoveShorts = `
+    /* Shorts tab on expanded sidebar */
     #contentContainer #sections ytd-guide-section-renderer:nth-of-type(1) #items ytd-guide-entry-renderer:nth-of-type(2),
+    
+    /* Shorts section on feed */
     ytd-rich-section-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts section on search */
     grid-shelf-view-model:has(a[href*="/shorts"]),
     ytd-video-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts section on video */
     ytd-reel-shelf-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts tab on collapsed sidebar */
     ytd-mini-guide-renderer #items ytd-mini-guide-entry-renderer:has(a[href*="/shorts"]) {
       display: none !important;
     }
   `;
 
   const cssRemoveNews = `
+    /* News section on feed */
     ytd-rich-section-renderer:not(:has(a[href*="/shorts"])):not(:has(ytd-rating-survey-renderer)) {
       display: none !important;
     }
   `;
 
   const cssRemoveRecommended = `
+    /* "Destacado de YouTube" on video */
     ytd-rich-item-renderer:has(.ytBadgeShapeHost.ytBadgeShapePromoted.ytBadgeShapeTypography),
+    
+    /* "¿Te gusta esta recomendación?" */
     lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
+    
+    /* "¿Estás buscando otra cosa?" */
     ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
+    
+    /* "Otra gente también busca" on search */
     ytd-horizontal-card-list-renderer,
+    
+    /* "Más relevante" */
     ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer):not(:has(a[href*="/shorts"])),
+    
+    /* "Descubre más temas" */
     ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
+    
+    /* "Reproduce contenido en segundo plano con YouTube Premium */
     ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media),
+    
+    /* "¿Qué te ha parecido este vídeo?" */
     ytd-rich-section-renderer:has(ytd-rating-survey-renderer):not(:has(a[href*="/shorts"])),
+    
+    /* "¿No está recibiendo las recomendaciones adecuadas?" */
     ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
       display: none !important;
     }
   `;
 
   const cssRemoveSuperThanks = `
+    /* Super Thanks button on video */
     #below ytd-watch-metadata #top-row #actions #flexible-item-buttons yt-button-view-model:has(path[d^='M16.25 2A6.7 6.7 0 0012']) {
       display: none !important;
     }
   `;
 
   const cssHideOriginalPlayer = `
-    body.zenTube-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
-    body.zenTube-custom-player #player-full-bleed-container {
+    body.zenified-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
+    body.zenified-custom-player #player-full-bleed-container {
       visibility: hidden !important;
     }
   `;
 
-  const zenTubeStyleManager = {
+  const zenifiedStyleManager = {
     styles: {},
     set(id, css) {
       if (!css) {
@@ -608,11 +636,11 @@
   function initCheckboxToggle(id, styleId, css) {
     const cb = document.getElementById(id);
     if (!cb) return;
-    let isChecked = localStorage.getItem('zenTube-' + id) === 'true';
+    let isChecked = localStorage.getItem('zenified-' + id) === 'true';
 
     const apply = () => {
-      localStorage.setItem('zenTube-' + id, isChecked);
-      zenTubeStyleManager.set(styleId, isChecked ? css : null);
+      localStorage.setItem('zenified-' + id, isChecked);
+      zenifiedStyleManager.set(styleId, isChecked ? css : null);
       if (isChecked) cb.setAttribute('checked', '');
       else cb.removeAttribute('checked');
     };
@@ -625,15 +653,15 @@
   }
 
   function waitForBody(callback) {
-    if (document.body) return callback();
+    if (document.body)
+      return callback();
     requestAnimationFrame(() => waitForBody(callback));
   }
 
   function waitForButtonsBar(callback) {
-    const buttonsBar = document.querySelector(
-      'ytd-masthead #container #end #buttons',
-    );
-    if (buttonsBar) return callback(buttonsBar);
+    const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
+    if (buttonsBar)
+      return callback(buttonsBar);
     requestAnimationFrame(() => waitForButtonsBar(callback));
   }
 
@@ -645,19 +673,23 @@
   }
 
   function ensureButton(buttonsBar) {
-    if (!document.querySelector('#zenTube-btn')) {
-      const popup = document.querySelector('#zenTube-popup');
-      const icon = document.querySelector('#zenTube-btn-icon');
-      if (popup) popup.style.display = 'none';
-      if (icon) icon.style.transform = 'rotate(0deg)';
+    if (!document.querySelector('#zenified-btn')) {
+      const popup = document.querySelector('#zenified-popup');
+      const icon = document.querySelector('#zenified-btn-icon');
+      if (popup)
+        popup.style.display = 'none';
+
+      if (icon)
+        icon.style.transform = 'rotate(0deg)';
+      
       insertButton(buttonsBar);
     }
   }
 
   function togglePopup(forceState = null) {
-    const btn = document.querySelector('#zenTube-btn');
-    const icon = document.querySelector('#zenTube-btn-icon');
-    const popup = document.querySelector('#zenTube-popup');
+    const btn = document.querySelector('#zenified-btn');
+    const icon = document.querySelector('#zenified-btn-icon');
+    const popup = document.querySelector('#zenified-popup');
     if (!btn || !icon || !popup) return;
 
     const active = btn.dataset.active === 'true';
@@ -671,54 +703,188 @@
 
   function insertStyles() {
     const styles = document.createElement('style');
-    styles.id = 'zenTube-styles';
+    styles.id = 'zenified-styles';
     styles.textContent = `
-      #zenTube-btn, #zenTube-popup { user-select: none; }
-      #zenTube-btn { transition: background-color .3s; margin-left: 8px; margin-right: 8px; }
-      #zenTube-btn-icon { transition: transform .3s; }
-      #zenTube-popup { position: fixed; display: none; z-index: 99999; top: 56px; right: 224px; outline: none; box-sizing: border-box; width: 341px; max-width: 480px; border-radius: 12px; overflow-x: hidden; overflow-y: auto; color: #f1f1f1; background-color: #282828; box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75); }
-      #zenTube-popup-title { border-bottom: 1px solid rgba(255,255,255,0.2); min-height: 48px; display: flex; flex-direction: row; align-items: center; }
-      #zenTube-popup-title h2 { margin-left: 16px; font-size: 1.6rem; font-weight: 400; flex: 1; }
-      #zenTube-popup-title button { width: 40px; height: 40px; background-color: transparent; border: none; cursor: pointer; margin-right: 8px; color: #f1f1f1; border-radius: 50%; transition: background-color .3s; }
-      #zenTube-popup-title button:hover { background: rgba(255, 255, 255, 0.2); }
-      #zenTube-popup-options { margin: var(--ytd-margin-4x); color: #f1f1f1; width: auto; }
-      #zenTube-popup-options .option { font-weight: 400; font-size: 1.5em; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-      #zenTube-popup-options .option:last-child { margin-bottom: 0; }
-      #zenTube-popup-options .option label { pointer-events: none; }
-      #zenTube-popup-options .toggle-container { position: relative; width: 36px; height: 14px; cursor: pointer; margin-left: 16px; }
-      #zenTube-popup-options .toggle-bar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 7px; background: #717171; transition: background 0.3s ease; }
-      #zenTube-popup-options .toggle-button { position: absolute; top: -3px; left: 0; width: 20px; height: 20px; border-radius: 50%; background-color: #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); transition: transform 0.3s ease; }
-      #zenTube-popup-options .toggle-container[checked] .toggle-bar { background: linear-gradient(90deg,#f03 80%,#ff2791); }
-      #zenTube-popup-options .toggle-container[checked] .toggle-button { transform: translateX(16px); }
-      @media (max-width: 765px) { #zenTube-btn { width: 36px; padding: 0; } #zenTube-btn-text { display: none; } #zenTube-btn-icon { margin: 0; } }
-      @media (max-width: 656px) { #zenTube-btn { background: transparent; } #zenTube-btn:hover { background: rgba(255, 255, 255, 0.2); } }
+      #zenified-btn, #zenified-popup {
+        user-select: none;
+      }
+
+      #zenified-btn {
+        transition: background-color .3s;
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+
+      #zenified-btn-icon {
+        transition: transform .3s;
+      }
+
+      #zenified-popup {
+        position: fixed;
+        display: none;
+        z-index: 99999;
+        top: 56px;
+        right: 224px;
+        outline: none;
+        box-sizing: border-box;
+        width: 341px;
+        max-width: 480px;
+        border-radius: 12px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        color: #f1f1f1;
+        background-color: #282828;
+        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+      }
+
+      #zenified-popup-title {
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        min-height: 48px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      #zenified-popup-title h2 {
+        margin-left: 16px;
+        font-size: 1.6rem;
+        font-weight: 400;
+        flex: 1;
+      }
+
+      #zenified-popup-title button {
+        width: 40px;
+        height: 40px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        margin-right: 8px;
+        color: #f1f1f1;
+        border-radius: 50%;
+        transition: background-color .3s;
+      }
+
+      #zenified-popup-title button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      #zenified-popup-options {
+        margin: var(--ytd-margin-4x);
+        color: #f1f1f1;
+        width: auto;
+      }
+
+      #zenified-popup-options .option {
+        font-weight: 400;
+        font-size: 1.5em;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      #zenified-popup-options .option:last-child {
+        margin-bottom: 0;
+      }
+
+      #zenified-popup-options .option label {
+        pointer-events: none;
+      }
+
+      #zenified-popup-options .toggle-container {
+        position: relative;
+        width: 36px;
+        height: 14px;
+        cursor: pointer;
+        margin-left: 16px;
+      }
+
+      #zenified-popup-options .toggle-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 7px;
+        background: #717171;
+        transition: background 0.3s ease;
+      }
+
+      #zenified-popup-options .toggle-button {
+        position: absolute;
+        top: -3px;
+        left: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+      }
+
+      #zenified-popup-options .toggle-container[checked] .toggle-bar {
+        background: linear-gradient(90deg,#f03 80%,#ff2791);
+      }
+
+      #zenified-popup-options .toggle-container[checked] .toggle-button {
+        transform: translateX(16px);
+      }
+
+      @media (max-width: 765px) {
+        #zenified-btn {
+          width: 36px;
+          padding: 0;
+        }
+        
+        #zenified-btn-text {
+          display: none;
+        }
+        
+        #zenified-btn-icon {
+          margin: 0;
+        }
+      }
+
+      @media (max-width: 656px) {
+        #zenified-btn {
+          background: transparent;
+        }
+        
+        #zenified-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
     `;
     document.head.appendChild(styles);
   }
 
   function insertButton(buttonsBar) {
     const btn = document.createElement('button');
-    btn.id = 'zenTube-btn';
-    btn.title = 'ZenTube Extension';
-    btn.className =
-      'ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlay ytSpecButtonShapeNextSizeM ytSpecButtonShapeNextIconLeading ytSpecButtonShapeNextEnableBackdropFilterExperiment';
+    btn.id = 'zenified-btn';
+    btn.className = 'ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlay ytSpecButtonShapeNextSizeM ytSpecButtonShapeNextIconLeading ytSpecButtonShapeNextEnableBackdropFilterExperiment';
+    
     const iconBtn = document.createElement('span');
-    iconBtn.id = 'zenTube-btn-icon';
+    iconBtn.id = 'zenified-btn-icon';
     iconBtn.className = 'ytSpecButtonShapeNextIcon';
     iconBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" transform="matrix(-1.8369701987210297e-16,-1,1,-1.8369701987210297e-16,0,0)"><path fill="currentColor" d="m9.55 12l7.35 7.35q.375.375.363.875t-.388.875q-.375.375-.875.375t-.875-.375l-7.7-7.675q-.3-.3-.45-.675t-.15-.75q0-.375.15-.75t.45-.675l7.7-7.7q.375-.375.888-.363t.887.388q.375.375.375.875t-.375.875L9.55 12Z"></path></svg>`;
+    
     const textBtn = document.createElement('div');
-    textBtn.id = 'zenTube-btn-text';
+    textBtn.id = 'zenified-btn-text';
     textBtn.className = 'yt-spec-button-shape-next__button-text-content';
-    textBtn.innerHTML = `<span>ZenTube</span>`;
+    textBtn.innerHTML = `<span>Zenified</span>`;
+
     btn.appendChild(iconBtn);
     btn.appendChild(textBtn);
-    btn.dataset.active = 'false';
+
+    btn.dataset.active = 'false'
+    ;
     btn.addEventListener('click', () => togglePopup());
+
     buttonsBar.prepend(btn);
   }
 
   function insertPopup() {
-    if (!document.querySelector('#zenTube-popup')) {
+    if (!document.querySelector('#zenified-popup')) {
       const createToggleHtml = (id, label) => `
         <div class="option">
           <label>${label}</label>
@@ -726,13 +892,13 @@
         </div>`;
 
       const popup = document.createElement('div');
-      popup.id = 'zenTube-popup';
+      popup.id = 'zenified-popup';
       popup.innerHTML = `
-        <div id="zenTube-popup-title">
-          <h2>ZenTube</h2>
+        <div id="zenified-popup-title">
+          <h2>Zenified</h2>
           <button><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M17.293 5.293 12 10.586 6.707 5.293a1 1 0 10-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 001.414 1.414L12 13.414l5.293 5.293a1 1 0 001.414-1.414L13.414 12l5.293-5.293a1 1 0 10-1.414-1.414Z"></path></svg></button>
         </div>
-        <div id="zenTube-popup-options">
+        <div id="zenified-popup-options">
           ${createToggleHtml('remove-player-ads', 'Remove Player Ads')}
           ${createToggleHtml('remove-ads', 'Remove Ads')}
           ${createToggleHtml('responsive-rows', 'Responsive Rows')}
@@ -745,51 +911,60 @@
       document.body.appendChild(popup);
 
       popup
-        .querySelector('#zenTube-popup-title button')
+        .querySelector('#zenified-popup-title button')
         .addEventListener('click', () => togglePopup(false));
       document.addEventListener('click', (e) => {
-        const p = document.querySelector('#zenTube-popup');
-        const b = document.querySelector('#zenTube-btn');
-        if (
-          p &&
-          b &&
-          b.dataset.active === 'true' &&
-          !p.contains(e.target) &&
-          !b.contains(e.target)
-        )
+        const p = document.querySelector('#zenified-popup');
+        const b = document.querySelector('#zenified-btn');
+        if (p && b && b.dataset.active === 'true' && !p.contains(e.target) && !b.contains(e.target))
           togglePopup(false);
       });
 
       initCheckboxToggle(
         'remove-player-ads',
-        'zenTube-remove-player-ads',
+        'zenified-remove-player-ads',
         cssHideOriginalPlayer,
       );
-      initCheckboxToggle('remove-ads', 'zenTube-remove-ads', cssRemoveAds);
+
+      initCheckboxToggle(
+        'remove-ads',
+        'zenified-remove-ads',
+        cssRemoveAds
+      );
+
       initCheckboxToggle(
         'responsive-rows',
-        'zenTube-responsive-rows',
+        'zenified-responsive-rows',
         cssResponsiveRows,
       );
+
       initCheckboxToggle(
         'remove-members',
-        'zenTube-remove-members',
+        'zenified-remove-members',
         cssRemoveMembers,
       );
+
       initCheckboxToggle(
         'remove-shorts',
-        'zenTube-remove-shorts',
+        'zenified-remove-shorts',
         cssRemoveShorts,
       );
-      initCheckboxToggle('remove-news', 'zenTube-remove-news', cssRemoveNews);
+
+      initCheckboxToggle(
+        'remove-news',
+        'zenified-remove-news',
+        cssRemoveNews
+      );
+
       initCheckboxToggle(
         'remove-recommended',
-        'zenTube-remove-recommended',
+        'zenified-remove-recommended',
         cssRemoveRecommended,
       );
+
       initCheckboxToggle(
         'remove-super-thanks',
-        'zenTube-remove-super-thanks',
+        'zenified-remove-super-thanks',
         cssRemoveSuperThanks,
       );
 
@@ -798,38 +973,37 @@
   }
 
   // ============================================================
-  //  INYECTAR IFRAME DE WIKIMEDIA CON EL REPRODUCTOR DE YOUTUBE
+  // INJECT WIKIMEDIA IFRAME WITH YOUTUBE PLAYER
   // ============================================================
 
-  // Helper para silenciar el video original
+  // Mute the original YouTube video when the custom player is active
   function setOriginalVideoMute(mute) {
     const video = document.querySelector('#movie_player video');
     const player = document.querySelector('#movie_player');
 
-    // Muteamos a nivel HTML5
-    if (video) video.muted = mute;
+    // Mute at the HTML level
+    if (video)
+      video.muted = mute;
 
-    // Muteamos a nivel de la API del reproductor de YouTube
-    if (
-      player &&
-      typeof player.mute === 'function' &&
-      typeof player.unMute === 'function'
-    ) {
-      if (mute) player.mute();
-      else player.unMute();
+    // Mute at the YouTube player API level
+    if (player && typeof player.mute === 'function' && typeof player.unMute === 'function') {
+      if (mute)
+        player.mute();
+      else
+        player.unMute();
     }
   }
 
   function initCustomPlayer() {
-    const isEnabled =
-      localStorage.getItem('zenTube-remove-player-ads') === 'true';
-    if (isEnabled) setupCustomPlayer();
+    const isEnabled = localStorage.getItem('zenified-remove-player-ads') === 'true';
+    if (isEnabled)
+      setupCustomPlayer();
 
     const toggleContainer = document.getElementById('remove-player-ads');
     if (toggleContainer) {
       toggleContainer.addEventListener('click', function () {
         setTimeout(() => {
-          if (localStorage.getItem('zenTube-remove-player-ads') === 'true') {
+          if (localStorage.getItem('zenified-remove-player-ads') === 'true') {
             setupCustomPlayer();
           } else {
             removeCustomPlayer();
@@ -842,7 +1016,7 @@
     const urlObserver = new MutationObserver(() => {
       if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
-        if (localStorage.getItem('zenTube-remove-player-ads') === 'true') {
+        if (localStorage.getItem('zenified-remove-player-ads') === 'true') {
           setTimeout(() => {
             removeCustomPlayer();
             setupCustomPlayer();
@@ -870,27 +1044,48 @@
   }
 
   function createCustomPlayer() {
-    if (document.getElementById('zenTube-custom-player')) return;
+    if (document.getElementById('zenified-custom-player')) return;
 
     const videoId = getVideoIdFromUrl();
     if (!videoId) return;
 
     const playerContainer = document.createElement('div');
-    playerContainer.id = 'zenTube-custom-player';
+    playerContainer.id = 'zenified-custom-player';
     playerContainer.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #000 !important; z-index: 10000 !important;`;
 
     const urlParams = new URLSearchParams(window.location.search);
     const startTime = urlParams.get('t') || '0';
 
-    const wikimediaUrl = `https://www.wikimedia.org/?zenTubeEmbed=${videoId}&t=${startTime}`;
+    const wikimediaUrl = `https://www.wikimedia.org/?zenifiedEmbed=${videoId}&t=${startTime}`;
     const wikimediaIframe = document.createElement('iframe');
-    wikimediaIframe.id = 'zenTube-wikimedia-iframe';
+    wikimediaIframe.id = 'zenified-wikimedia-iframe';
     wikimediaIframe.src = wikimediaUrl;
-    wikimediaIframe.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none !important; background: #000 !important; z-index: 1 !important;`;
+    wikimediaIframe.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: none !important; background: transparent !important; z-index: 1 !important; opacity: 0; transition: opacity 0.3s ease;`;
     wikimediaIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     wikimediaIframe.allowFullscreen = true;
 
     playerContainer.appendChild(wikimediaIframe);
+
+    // Show iframe safely
+    let readyFired = false;
+    const showIframe = () => {
+      if (readyFired) return;
+      readyFired = true;
+      const iframe = document.getElementById('zenified-wikimedia-iframe');
+      if (iframe) iframe.style.opacity = '1';
+    };
+
+    // Listen message from Wikimedia
+    window.addEventListener('message', function onWikimediaReady(event) {
+      if (event.data === 'ZENIFIED_WIKIMEDIA_READY') {
+        showIframe();
+        // Clear event listener after receiving the message
+        window.removeEventListener('message', onWikimediaReady);
+      }
+    });
+
+    // Fallback: Show iframe after 2 seconds if no message is received
+    setTimeout(showIframe, 2000);
 
     const moviePlayer = document.querySelector('#movie_player');
     if (moviePlayer) {
@@ -907,7 +1102,7 @@
   }
 
   function togglePlayPause() {
-    const iframe = document.getElementById('zenTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenified-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         '{"event":"command","func":"pauseVideo","args":""}',
@@ -915,14 +1110,8 @@
       );
   }
 
-  function toggleControls() {
-    const overlay = document.getElementById('zenTube-play-pause-overlay');
-    if (overlay)
-      overlay.style.opacity = overlay.style.opacity === '1' ? '0' : '1';
-  }
-
   function toggleFullscreen() {
-    const playerContainer = document.getElementById('zenTube-custom-player');
+    const playerContainer = document.getElementById('zenified-custom-player');
     if (playerContainer) {
       if (!document.fullscreenElement)
         playerContainer.requestFullscreen().catch(() => {});
@@ -931,7 +1120,7 @@
   }
 
   function setYoutubePlayerTime(time) {
-    const iframe = document.getElementById('zenTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenified-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         `{"event":"command","func":"seekTo","args":[${parseInt(time)},true]}`,
@@ -941,7 +1130,7 @@
 
   function setupPlayerEventListeners() {
     document.addEventListener('keydown', function (e) {
-      if (!document.getElementById('zenTube-custom-player')) return;
+      if (!document.getElementById('zenified-custom-player')) return;
       switch (e.key.toLowerCase()) {
         case 'k':
         case ' ':
@@ -969,7 +1158,7 @@
   }
 
   function toggleMute() {
-    const iframe = document.getElementById('zenTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenified-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         '{"event":"command","func":"mute","args":""}',
@@ -978,7 +1167,7 @@
   }
 
   function seekRelative(seconds) {
-    const iframe = document.getElementById('zenTube-wikimedia-iframe');
+    const iframe = document.getElementById('zenified-wikimedia-iframe');
     if (iframe && iframe.contentWindow)
       iframe.contentWindow.postMessage(
         `{"event":"command","func":"seekBy","args":[${seconds}]}`,
@@ -987,8 +1176,9 @@
   }
 
   function removeCustomPlayer() {
-    const player = document.getElementById('zenTube-custom-player');
-    if (player) player.remove();
+    const player = document.getElementById('zenified-custom-player');
+    if (player)
+      player.remove();
 
     setOriginalVideoMute(false);
   }
@@ -998,18 +1188,18 @@
   }
 
   function injectPlayerStyles() {
-    if (document.getElementById('zenTube-player-styles')) return;
+    if (document.getElementById('zenified-player-styles')) return;
     const style = document.createElement('style');
-    style.id = 'zenTube-player-styles';
+    style.id = 'zenified-player-styles';
     style.textContent = `
-      body.zenTube-custom-player-active .ytp-chrome-top, body.zenTube-custom-player-active .ytp-chrome-bottom,
-      body.zenTube-custom-player-active .ytp-ce-element, body.zenTube-custom-player-active .ytp-gradient-top,
-      body.zenTube-custom-player-active .ytp-gradient-bottom, body.zenTube-custom-player-active .ytp-progress-bar-container,
-      body.zenTube-custom-player-active .ytp-chrome-controls {
+      body.zenified-custom-player-active .ytp-chrome-top, body.zenified-custom-player-active .ytp-chrome-bottom,
+      body.zenified-custom-player-active .ytp-ce-element, body.zenified-custom-player-active .ytp-gradient-top,
+      body.zenified-custom-player-active .ytp-gradient-bottom, body.zenified-custom-player-active .ytp-progress-bar-container,
+      body.zenified-custom-player-active .ytp-chrome-controls {
         display: none !important; opacity: 0 !important; visibility: hidden !important;
       }
       
-      #zenTube-custom-player {
+      #zenified-custom-player {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
@@ -1019,17 +1209,22 @@
         z-index: 10000 !important;
       }
       
-      #zenTube-custom-player + * video {
+      #zenified-custom-player + * video {
         opacity: 0 !important;
         visibility: hidden !important;
       }
       
-      #zenTube-play-pause-overlay:hover {
+      #zenified-play-pause-overlay:hover {
         opacity: 1 !important;
       }
     `;
     document.head.appendChild(style);
   }
 
-  console.log(`ZenTube v${version}`);
+  // ============================================================
+  //  EXTENSION LOADED SUCCESSFULLY LOG
+  // ============================================================
+
+  if (window.top === window.self)
+    console.log(`%c✔ Zenified loaded successfully (v${version})`, 'background: #0a0; color: #fff; padding: 8px; font-weight: bold; border-radius: 18px;');
 })();
