@@ -1,5 +1,301 @@
 (function () {
-  const version = '0.4.4';
+  const version = '0.4.5';
+
+  // ============================================================
+  //  CONSTANTS AND CSS BLOCKS
+  // ============================================================
+  const cssRemoveAds = `
+    .ytd-search ytd-shelf-renderer,
+    ytd-reel-shelf-renderer,
+    ytd-merch-shelf-renderer,
+    ytd-action-companion-ad-renderer,
+    ytd-display-ad-renderer,
+    ytd-video-masthead-ad-advertiser-info-renderer,
+    ytd-video-masthead-ad-primary-video-renderer,
+    ytd-in-feed-ad-layout-renderer,
+    ytd-ad-slot-renderer,
+    ytd-statement-banner-renderer,
+    ytd-banner-promo-renderer-background, /* FIXED: Missing comma */
+    ytd-ad-slot-renderer,
+    ytd-in-feed-ad-layout-renderer,
+    ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts):not([target-id="engagement-panel-macro-markers-description-chapters"]):not([target-id="engagement-panel-searchable-transcript"]),
+    ytd-compact-video-renderer:has(.goodTube_hidden),
+    ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
+    .ytd-video-masthead-ad-v3-renderer,
+    div#root.style-scope.ytd-display-ad-renderer.yt-simple-endpoint,
+    div#sparkles-container.style-scope.ytd-promoted-sparkles-web-renderer,
+    div#main-container.style-scope.ytd-promoted-video-renderer,
+    div#player-ads.style-scope.ytd-watch-flexy,
+    #clarify-box,
+    ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
+    ytm-rich-shelf-renderer,
+    ytm-search ytm-shelf-renderer,
+    ytm-button-renderer.icon-avatar_logged_out,
+    ytm-companion-slot,
+    ytm-reel-shelf-renderer,
+    ytm-merch-shelf-renderer,
+    ytm-action-companion-ad-renderer,
+    ytm-display-ad-renderer,
+    ytm-rich-section-renderer,
+    ytm-video-masthead-ad-advertiser-info-renderer,
+    ytm-video-masthead-ad-primary-video-renderer,
+    ytm-in-feed-ad-layout-renderer,
+    ytm-ad-slot-renderer,
+    ytm-statement-banner-renderer,
+    ytm-banner-promo-renderer-background, /* FIXED: Missing comma */
+    ytm-ad-slot-renderer,
+    ytm-in-feed-ad-layout-renderer,
+    ytm-compact-video-renderer:has(.goodTube_hidden),
+    ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer),
+    .ytm-video-masthead-ad-v3-renderer,
+    div#root.style-scope.ytm-display-ad-renderer.yt-simple-endpoint,
+    div#sparkles-container.style-scope.ytm-promoted-sparkles-web-renderer,
+    div#main-container.style-scope.ytm-promoted-video-renderer,
+    div#player-ads.style-scope.ytm-watch-flexy,
+    ytd-compact-movie-renderer,
+    yt-about-this-ad-renderer,
+    masthead-ad,
+    ad-slot-renderer,
+    yt-mealbar-promo-renderer,
+    statement-banner-style-type-compact,
+    ytm-promoted-sparkles-web-renderer,
+    tp-yt-iron-overlay-backdrop,
+    #masthead-ad,
+    #offer-module,
+    /* TODO: Fix next line */
+    /*ytd-item-section-renderer:has(ytd-ad-slot-renderer),*/
+    tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
+      display: none !important;
+    }
+  `;
+
+  const cssResponsiveRows = `
+    ytd-rich-item-renderer[rendered-from-rich-grid] {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    
+    @media (min-width: 530px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 900px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 1300px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 1650px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 2168px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 2416px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 2664px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 2912px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+    
+    @media (min-width: 3160px) {
+      ytd-rich-item-renderer[rendered-from-rich-grid] {
+        width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important;
+        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
+      }
+    }
+  `;
+
+  const cssRemoveMembers = `
+    /* "Unirme" button on video */
+    #below ytd-watch-metadata #top-row #owner ytd-video-owner-renderer #sponsor-button,
+
+    /* "0€ el primer mes" on channel */
+    ytd-browse #header #page-header yt-attribution-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* "Unirme" on channel */
+    ytd-browse #header #page-header yt-flexible-actions-view-model [class*='ytFlexibleActionsViewModelAction']:has(path[d^='M12 23c6.075 0 11-4.925 11-11S18.075']),
+    
+    /* "Nuestros miembros" on channel */
+    ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
+
+    /* "Vídeos exclusivos para miembros" on channel */
+    ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
+    ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* "Miembros primero" tag on video description */
+    #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#'],
+    #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#']+span,
+    
+    /* Videos on feed */
+    ytd-rich-item-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
+    ytd-rich-item-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
+    
+    /* Videos on video */
+    yt-lockup-view-model:has(path[d^='M6 .5a5.5 5.5 0 100']),
+    yt-lockup-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']) {
+      display: none !important;
+    }
+  `;
+
+  const cssRemoveShorts = `
+    /* Shorts tab on expanded sidebar */
+    #contentContainer #sections ytd-guide-section-renderer:nth-of-type(1) #items ytd-guide-entry-renderer:nth-of-type(2),
+    
+    /* Shorts section on feed */
+    ytd-rich-section-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts section on search */
+    grid-shelf-view-model:has(a[href*="/shorts"]),
+    ytd-video-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts section on video */
+    ytd-reel-shelf-renderer:has(a[href*="/shorts"]),
+    
+    /* Shorts tab on collapsed sidebar */
+    ytd-mini-guide-renderer #items ytd-mini-guide-entry-renderer:has(a[href*="/shorts"]) {
+      display: none !important;
+    }
+  `;
+
+  const cssRemoveNews = `
+    /* News section on feed */
+    ytd-rich-section-renderer:not(:has(a[href*="/shorts"])):not(:has(ytd-rating-survey-renderer)) {
+      display: none !important;
+    }
+  `;
+
+  const cssRemoveRecommended = `
+    /* "Destacado de YouTube" on video */
+    ytd-rich-item-renderer:has(.ytBadgeShapeHost.ytBadgeShapePromoted.ytBadgeShapeTypography),
+    
+    /* "¿Te gusta esta recomendación?" */
+    lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
+    
+    /* "¿Estás buscando otra cosa?" */
+    ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
+    
+    /* "Otra gente también busca" on search */
+    ytd-horizontal-card-list-renderer,
+    
+    /* "Más relevante" */
+    ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer):not(:has(a[href*="/shorts"])),
+    
+    /* "Descubre más temas" */
+    ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
+    
+    /* "Reproduce contenido en segundo plano con YouTube Premium */
+    ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media),
+    
+    /* "¿Qué te ha parecido este vídeo?" */
+    ytd-rich-section-renderer:has(ytd-rating-survey-renderer):not(:has(a[href*="/shorts"])),
+    
+    /* "¿No está recibiendo las recomendaciones adecuadas?" */
+    ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
+      display: none !important;
+    }
+  `;
+
+  const cssRemoveSuperThanks = `
+    /* Super Thanks button on video */
+    #below ytd-watch-metadata #top-row #actions #flexible-item-buttons yt-button-view-model:has(path[d^='M16.25 2A6.7 6.7 0 0012']) {
+      display: none !important;
+    }
+  `;
+
+  const cssHideOriginalPlayer = `
+    body.zenified-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
+    body.zenified-custom-player #player-full-bleed-container {
+      visibility: hidden !important;
+    }
+  `;
+
+  // ============================================================
+  //  MAIN UTILITIES
+  // ============================================================
+  const zenifiedStyleManager = {
+    styles: {},
+    set(id, css) {
+      if (!css) {
+        if (this.styles[id])
+          this.styles[id].remove();
+
+        delete this.styles[id];
+        return;
+      }
+      
+      if (!this.styles[id]) {
+        const tag = document.createElement('style');
+        tag.id = id;
+        tag.textContent = css;
+        document.head.appendChild(tag);
+        this.styles[id] = tag;
+
+      } else {
+        this.styles[id].textContent = css;
+      }
+    },
+  };
+
+  function waitForBody(callback) {
+    if (document.body) return callback();
+
+    requestAnimationFrame(() => waitForBody(callback));
+  }
+
+  function waitForButtonsBar(callback) {
+    const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
+    if (buttonsBar) return callback(buttonsBar);
+
+    requestAnimationFrame(() => waitForButtonsBar(callback));
+  }
+
+  function getVideoIdFromUrl() {
+    return new URLSearchParams(window.location.search).get('v');
+  }
 
   // ============================================================
   //  1. YOUTUBE EMBED MODE
@@ -42,7 +338,6 @@
         }
 
         /* BUTTONS /*
-        /*---------*/
 
         /* 1. Play/Pause button (Anchored to the left) */
         ytm-custom-control .player-controls-middle-core-buttons {
@@ -312,8 +607,8 @@
       `;
       document.head.appendChild(style);
     };
-    injectEmbedCSS();
 
+    injectEmbedCSS();
     return;
   }
 
@@ -340,290 +635,20 @@
 
       // Bridge for pause, volume, and other controls
       window.addEventListener('message', (event) => {
-        if (event.source === window.parent && ytIframe.contentWindow) {
+        if (event.source === window.parent && ytIframe.contentWindow)
           ytIframe.contentWindow.postMessage(event.data, '*');
-        }
-        if (event.source === ytIframe.contentWindow) {
+        if (event.source === ytIframe.contentWindow)
           window.parent.postMessage(event.data, '*');
-        }
       });
     }
-
+    
     return;
   }
 
   // ============================================================
-  //  3. YOUTUBE MAIN MODE
+  //  3. YOUTUBE MAIN MODE (UI AND MAIN LOGIC)
   // ============================================================
-  const cssRemoveAds = `
-    .ytd-search ytd-shelf-renderer,
-    ytd-reel-shelf-renderer,
-    ytd-merch-shelf-renderer,
-    ytd-action-companion-ad-renderer,
-    ytd-display-ad-renderer,
-    ytd-video-masthead-ad-advertiser-info-renderer,
-    ytd-video-masthead-ad-primary-video-renderer,
-    ytd-in-feed-ad-layout-renderer,
-    ytd-ad-slot-renderer,
-    ytd-statement-banner-renderer,
-    ytd-banner-promo-renderer-background
-    ytd-ad-slot-renderer,
-    ytd-in-feed-ad-layout-renderer,
-    ytd-engagement-panel-section-list-renderer:not(.ytd-popup-container):not([target-id='engagement-panel-clip-create']):not(.ytd-shorts):not([target-id="engagement-panel-macro-markers-description-chapters"]):not([target-id="engagement-panel-searchable-transcript"]),
-    ytd-compact-video-renderer:has(.goodTube_hidden),
-    ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer)
-    .ytd-video-masthead-ad-v3-renderer,
-    div#root.style-scope.ytd-display-ad-renderer.yt-simple-endpoint,
-    div#sparkles-container.style-scope.ytd-promoted-sparkles-web-renderer,
-    div#main-container.style-scope.ytd-promoted-video-renderer,
-    div#player-ads.style-scope.ytd-watch-flexy,
-    #clarify-box,
-    ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
-    ytm-rich-shelf-renderer,
-    ytm-search ytm-shelf-renderer,
-    ytm-button-renderer.icon-avatar_logged_out,
-    ytm-companion-slot,
-    ytm-reel-shelf-renderer,
-    ytm-merch-shelf-renderer,
-    ytm-action-companion-ad-renderer,
-    ytm-display-ad-renderer,
-    ytm-rich-section-renderer,
-    ytm-video-masthead-ad-advertiser-info-renderer,
-    ytm-video-masthead-ad-primary-video-renderer,
-    ytm-in-feed-ad-layout-renderer,
-    ytm-ad-slot-renderer,
-    ytm-statement-banner-renderer,
-    ytm-banner-promo-renderer-background
-    ytm-ad-slot-renderer,
-    ytm-in-feed-ad-layout-renderer,
-    ytm-compact-video-renderer:has(.goodTube_hidden),
-    ytm-rich-item-renderer:has(> #content > ytm-ad-slot-renderer)
-    .ytm-video-masthead-ad-v3-renderer,
-    div#root.style-scope.ytm-display-ad-renderer.yt-simple-endpoint,
-    div#sparkles-container.style-scope.ytm-promoted-sparkles-web-renderer,
-    div#main-container.style-scope.ytm-promoted-video-renderer,
-    div#player-ads.style-scope.ytm-watch-flexy,
-    ytd-compact-movie-renderer,
-    yt-about-this-ad-renderer,
-    masthead-ad,
-    ad-slot-renderer,
-    yt-mealbar-promo-renderer,
-    statement-banner-style-type-compact,
-    ytm-promoted-sparkles-web-renderer,
-    tp-yt-iron-overlay-backdrop,
-    #masthead-ad,
-    #offer-module,
-    /*TODO: CORREGIR LA SIGUIENTE LINEA*/
-    /*ytd-item-section-renderer:has(ytd-ad-slot-renderer),*/
-    tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
-      display: none !important;
-    }
-  `;
-
-  const cssResponsiveRows = `
-    ytd-rich-item-renderer[rendered-from-rich-grid] {
-      width: 100% !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-    }
-    
-    @media (min-width: 530px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 900px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 1300px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 1650px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 2168px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 2416px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 2664px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 2912px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-    
-    @media (min-width: 3160px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
-        width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important;
-        margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-        margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
-      }
-    }
-  `;
-
-  const cssRemoveMembers = `
-    /* Join button on video */
-    #below ytd-watch-metadata #top-row #owner ytd-video-owner-renderer #sponsor-button,
-
-    /* "0€ el primer mes" on channel */
-    ytd-browse #header #page-header yt-attribution-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
-    
-    /* "Unirme" on channel */
-    ytd-browse #header #page-header yt-flexible-actions-view-model [class*='ytFlexibleActionsViewModelAction']:has(path[d^='M12 23c6.075 0 11-4.925 11-11S18.075']),
-    
-    /* "Nuestros miembros" on channel */
-    ytd-two-column-browse-results-renderer #primary #contents ytd-item-section-renderer:has(#contents #action-button),
-
-    /* "Vídeos exclusivos para miembros" on channel */
-    ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
-    ytd-browse #primary #contents ytd-item-section-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
-    
-    /* "Miembros primero" tag on video description */
-    #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#'],
-    #primary ytd-watch-metadata #description ytd-watch-info-text yt-formatted-string a[href='#']+span,
-    
-    /* Videos on feed */
-    ytd-rich-item-renderer:has(path[d^='M6 .5a5.5 5.5 0 100']),
-    ytd-rich-item-renderer:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']),
-    
-    /* Videos on video */
-    yt-lockup-view-model:has(path[d^='M6 .5a5.5 5.5 0 100']),
-    yt-lockup-view-model:has(path[d^='M11.326 2H3.5A1.5 1.5 0 002']) {
-      display: none !important;
-    }
-  `;
-
-  const cssRemoveShorts = `
-    /* Shorts tab on expanded sidebar */
-    #contentContainer #sections ytd-guide-section-renderer:nth-of-type(1) #items ytd-guide-entry-renderer:nth-of-type(2),
-    
-    /* Shorts section on feed */
-    ytd-rich-section-renderer:has(a[href*="/shorts"]),
-    
-    /* Shorts section on search */
-    grid-shelf-view-model:has(a[href*="/shorts"]),
-    ytd-video-renderer:has(a[href*="/shorts"]),
-    
-    /* Shorts section on video */
-    ytd-reel-shelf-renderer:has(a[href*="/shorts"]),
-    
-    /* Shorts tab on collapsed sidebar */
-    ytd-mini-guide-renderer #items ytd-mini-guide-entry-renderer:has(a[href*="/shorts"]) {
-      display: none !important;
-    }
-  `;
-
-  const cssRemoveNews = `
-    /* News section on feed */
-    ytd-rich-section-renderer:not(:has(a[href*="/shorts"])):not(:has(ytd-rating-survey-renderer)) {
-      display: none !important;
-    }
-  `;
-
-  const cssRemoveRecommended = `
-    /* "Destacado de YouTube" on video */
-    ytd-rich-item-renderer:has(.ytBadgeShapeHost.ytBadgeShapePromoted.ytBadgeShapeTypography),
-    
-    /* "¿Te gusta esta recomendación?" */
-    lockup-attachments-view-model:has(yt-slimline-survey-view-model path[d^='M24.88,26.5c-0.19,0-0.38-0.11-0.46-0.3C23.3']),
-    
-    /* "¿Estás buscando otra cosa?" */
-    ytd-rich-item-renderer:has(ytd-feed-nudge-renderer),
-    
-    /* "Otra gente también busca" on search */
-    ytd-horizontal-card-list-renderer,
-    
-    /* "Más relevante" */
-    ytd-rich-section-renderer:has(ytd-rich-shelf-renderer ytd-rich-item-renderer):not(:has(a[href*="/shorts"])),
-    
-    /* "Descubre más temas" */
-    ytd-rich-section-renderer:has(ytd-chips-shelf-with-video-shelf-renderer ytd-rich-shelf-renderer #contents ytd-rich-item-renderer),
-    
-    /* "Reproduce contenido en segundo plano con YouTube Premium */
-    ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer #visible-content-wrapper #visible-video-container ytd-rich-grid-media),
-    
-    /* "¿Qué te ha parecido este vídeo?" */
-    ytd-rich-section-renderer:has(ytd-rating-survey-renderer):not(:has(a[href*="/shorts"])),
-    
-    /* "¿No está recibiendo las recomendaciones adecuadas?" */
-    ytd-feed-nudge-renderer.ytd-item-section-renderer:has(div#dismissible.ytd-feed-nudge-renderer) {
-      display: none !important;
-    }
-  `;
-
-  const cssRemoveSuperThanks = `
-    /* Super Thanks button on video */
-    #below ytd-watch-metadata #top-row #actions #flexible-item-buttons yt-button-view-model:has(path[d^='M16.25 2A6.7 6.7 0 0012']) {
-      display: none !important;
-    }
-  `;
-
-  const cssHideOriginalPlayer = `
-    body.zenified-custom-player #player:not(.ytd-shorts):not(.ytd-channel-video-player-renderer),
-    body.zenified-custom-player #player-full-bleed-container {
-      visibility: hidden !important;
-    }
-  `;
-
-  const zenifiedStyleManager = {
-    styles: {},
-    set(id, css) {
-      if (!css) {
-        if (this.styles[id]) this.styles[id].remove();
-        delete this.styles[id];
-        return;
-      }
-      if (!this.styles[id]) {
-        const tag = document.createElement('style');
-        tag.id = id;
-        tag.textContent = css;
-        document.head.appendChild(tag);
-        this.styles[id] = tag;
-      } else {
-        this.styles[id].textContent = css;
-      }
-    },
-  };
-
+  
   insertStyles();
   waitForBody(() => {
     insertPopup();
@@ -632,6 +657,8 @@
       ensureButton(buttonsBar);
     });
   });
+
+  // --- UI Functions ---
 
   function initCheckboxToggle(id, styleId, css) {
     const cb = document.getElementById(id);
@@ -650,19 +677,6 @@
       apply();
     });
     apply();
-  }
-
-  function waitForBody(callback) {
-    if (document.body)
-      return callback();
-    requestAnimationFrame(() => waitForBody(callback));
-  }
-
-  function waitForButtonsBar(callback) {
-    const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
-    if (buttonsBar)
-      return callback(buttonsBar);
-    requestAnimationFrame(() => waitForButtonsBar(callback));
   }
 
   function startObserver(buttonsBar) {
@@ -876,8 +890,7 @@
     btn.appendChild(iconBtn);
     btn.appendChild(textBtn);
 
-    btn.dataset.active = 'false'
-    ;
+    btn.dataset.active = 'false';
     btn.addEventListener('click', () => togglePopup());
 
     buttonsBar.prepend(btn);
@@ -920,60 +933,21 @@
           togglePopup(false);
       });
 
-      initCheckboxToggle(
-        'remove-player-ads',
-        'zenified-remove-player-ads',
-        cssHideOriginalPlayer,
-      );
-
-      initCheckboxToggle(
-        'remove-ads',
-        'zenified-remove-ads',
-        cssRemoveAds
-      );
-
-      initCheckboxToggle(
-        'responsive-rows',
-        'zenified-responsive-rows',
-        cssResponsiveRows,
-      );
-
-      initCheckboxToggle(
-        'remove-members',
-        'zenified-remove-members',
-        cssRemoveMembers,
-      );
-
-      initCheckboxToggle(
-        'remove-shorts',
-        'zenified-remove-shorts',
-        cssRemoveShorts,
-      );
-
-      initCheckboxToggle(
-        'remove-news',
-        'zenified-remove-news',
-        cssRemoveNews
-      );
-
-      initCheckboxToggle(
-        'remove-recommended',
-        'zenified-remove-recommended',
-        cssRemoveRecommended,
-      );
-
-      initCheckboxToggle(
-        'remove-super-thanks',
-        'zenified-remove-super-thanks',
-        cssRemoveSuperThanks,
-      );
+      initCheckboxToggle('remove-player-ads', 'zenified-remove-player-ads', cssHideOriginalPlayer);
+      initCheckboxToggle('remove-ads', 'zenified-remove-ads', cssRemoveAds);
+      initCheckboxToggle('responsive-rows', 'zenified-responsive-rows', cssResponsiveRows);
+      initCheckboxToggle('remove-members', 'zenified-remove-members', cssRemoveMembers);
+      initCheckboxToggle('remove-shorts', 'zenified-remove-shorts', cssRemoveShorts);
+      initCheckboxToggle('remove-news', 'zenified-remove-news', cssRemoveNews);
+      initCheckboxToggle('remove-recommended', 'zenified-remove-recommended', cssRemoveRecommended);
+      initCheckboxToggle('remove-super-thanks', 'zenified-remove-super-thanks', cssRemoveSuperThanks);
 
       initCustomPlayer();
     }
   }
 
   // ============================================================
-  // INJECT WIKIMEDIA IFRAME WITH YOUTUBE PLAYER
+  //  INJECT WIKIMEDIA IFRAME WITH YOUTUBE PLAYER
   // ============================================================
 
   // Mute the original YouTube video when the custom player is active
@@ -1181,10 +1155,6 @@
       player.remove();
 
     setOriginalVideoMute(false);
-  }
-
-  function getVideoIdFromUrl() {
-    return new URLSearchParams(window.location.search).get('v');
   }
 
   function injectPlayerStyles() {
