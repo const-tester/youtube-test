@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.5';
+  const version = '0.4.6';
 
   // ============================================================
   //  CONSTANTS AND CSS BLOCKS
@@ -62,7 +62,7 @@
     tp-yt-iron-overlay-backdrop,
     #masthead-ad,
     #offer-module,
-    /* TODO: Fix next line */
+    /*TODO: CORREGIR LA SIGUIENTE LINEA*/
     /*ytd-item-section-renderer:has(ytd-ad-slot-renderer),*/
     tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
       display: none !important;
@@ -150,7 +150,7 @@
   `;
 
   const cssRemoveMembers = `
-    /* "Unirme" button on video */
+    /* Join button on video */
     #below ytd-watch-metadata #top-row #owner ytd-video-owner-renderer #sponsor-button,
 
     /* "0€ el primer mes" on channel */
@@ -260,20 +260,16 @@
     styles: {},
     set(id, css) {
       if (!css) {
-        if (this.styles[id])
-          this.styles[id].remove();
-
+        if (this.styles[id]) this.styles[id].remove();
         delete this.styles[id];
         return;
       }
-      
       if (!this.styles[id]) {
         const tag = document.createElement('style');
         tag.id = id;
         tag.textContent = css;
         document.head.appendChild(tag);
         this.styles[id] = tag;
-
       } else {
         this.styles[id].textContent = css;
       }
@@ -281,15 +277,15 @@
   };
 
   function waitForBody(callback) {
-    if (document.body) return callback();
-
+    if (document.body)
+      return callback();
     requestAnimationFrame(() => waitForBody(callback));
   }
 
   function waitForButtonsBar(callback) {
     const buttonsBar = document.querySelector('ytd-masthead #container #end #buttons');
-    if (buttonsBar) return callback(buttonsBar);
-
+    if (buttonsBar)
+      return callback(buttonsBar);
     requestAnimationFrame(() => waitForButtonsBar(callback));
   }
 
@@ -607,8 +603,8 @@
       `;
       document.head.appendChild(style);
     };
-
     injectEmbedCSS();
+
     return;
   }
 
@@ -635,13 +631,15 @@
 
       // Bridge for pause, volume, and other controls
       window.addEventListener('message', (event) => {
-        if (event.source === window.parent && ytIframe.contentWindow)
+        if (event.source === window.parent && ytIframe.contentWindow) {
           ytIframe.contentWindow.postMessage(event.data, '*');
-        if (event.source === ytIframe.contentWindow)
+        }
+        if (event.source === ytIframe.contentWindow) {
           window.parent.postMessage(event.data, '*');
+        }
       });
     }
-    
+
     return;
   }
 
@@ -950,6 +948,30 @@
   //  INJECT WIKIMEDIA IFRAME WITH YOUTUBE PLAYER
   // ============================================================
 
+  let positionSyncInterval = null;
+  let playerResizeObserver = null;
+
+  function syncPlayerPosition() {
+    const player = document.getElementById('zenified-custom-player');
+    const target = document.querySelector('#movie_player');
+    if (!player || !target) return;
+
+    // Skip manual positioning if the user sets it to native fullscreen
+    if (document.fullscreenElement === player) {
+      player.style.top = '0px';
+      player.style.left = '0px';
+      player.style.width = '100vw';
+      player.style.height = '100vh';
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    player.style.top = (window.scrollY + rect.top) + 'px';
+    player.style.left = (window.scrollX + rect.left) + 'px';
+    player.style.width = rect.width + 'px';
+    player.style.height = rect.height + 'px';
+  }
+
   // Mute the original YouTube video when the custom player is active
   function setOriginalVideoMute(mute) {
     const video = document.querySelector('#movie_player video');
@@ -1025,7 +1047,8 @@
 
     const playerContainer = document.createElement('div');
     playerContainer.id = 'zenified-custom-player';
-    playerContainer.style.cssText = `position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #000 !important; z-index: 10000 !important;`;
+    // Position absolute and z-index 1999 to naturally stay under YouTube's header (z-index 2000)
+    playerContainer.style.cssText = `position: absolute !important; background: #000 !important; z-index: 1999 !important;`;
 
     const urlParams = new URLSearchParams(window.location.search);
     const startTime = urlParams.get('t') || '0';
@@ -1063,8 +1086,22 @@
 
     const moviePlayer = document.querySelector('#movie_player');
     if (moviePlayer) {
-      moviePlayer.style.position = 'relative';
-      moviePlayer.appendChild(playerContainer);
+      // Appending to body instead of moviePlayer prevents iframe reloading when YouTube alters the DOM
+      document.body.appendChild(playerContainer);
+      
+      // Initial position sync
+      syncPlayerPosition();
+      
+      // Listen for resize and position changes on the original player
+      if (!playerResizeObserver) {
+        playerResizeObserver = new ResizeObserver(() => syncPlayerPosition());
+      }
+      playerResizeObserver.observe(moviePlayer);
+      playerResizeObserver.observe(document.body);
+      
+      positionSyncInterval = setInterval(syncPlayerPosition, 200);
+      window.addEventListener('resize', syncPlayerPosition);
+
       if (startTime !== '0')
         setTimeout(() => setYoutubePlayerTime(startTime), 2000);
     }
@@ -1154,6 +1191,16 @@
     if (player)
       player.remove();
 
+    if (playerResizeObserver) {
+      playerResizeObserver.disconnect();
+      playerResizeObserver = null;
+    }
+    if (positionSyncInterval) {
+      clearInterval(positionSyncInterval);
+      positionSyncInterval = null;
+    }
+    window.removeEventListener('resize', syncPlayerPosition);
+
     setOriginalVideoMute(false);
   }
 
@@ -1171,12 +1218,8 @@
       
       #zenified-custom-player {
         position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
         background: #000 !important;
-        z-index: 10000 !important;
+        z-index: 1999 !important;
       }
       
       #zenified-custom-player + * video {
