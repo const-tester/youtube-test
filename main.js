@@ -1,5 +1,5 @@
 (function () {
-  const version = '0.4.8';
+  const version = '0.4.9';
 
   // ============================================================
   //  CONSTANTS AND CSS BLOCKS
@@ -70,14 +70,14 @@
   `;
 
   const cssResponsiveRows = `
-    ytd-rich-item-renderer[rendered-from-rich-grid] {
+    ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
       width: 100% !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
     }
     
     @media (min-width: 530px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(50% - ((var(--ytd-rich-grid-item-margin) / 2)) / 1 * 4) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -85,7 +85,7 @@
     }
     
     @media (min-width: 900px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(33.333333% - ((var(--ytd-rich-grid-item-margin) / 2)) / 2 * 6) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -93,7 +93,7 @@
     }
     
     @media (min-width: 1300px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(25% - ((var(--ytd-rich-grid-item-margin) / 2)) / 3 * 8) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -101,7 +101,7 @@
     }
     
     @media (min-width: 1650px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(20% - ((var(--ytd-rich-grid-item-margin) / 2)) / 4 * 10) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -109,7 +109,7 @@
     }
     
     @media (min-width: 2168px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(16.666667% - ((var(--ytd-rich-grid-item-margin) / 2)) / 5 * 12) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -117,7 +117,7 @@
     }
     
     @media (min-width: 2416px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(14.285714% - ((var(--ytd-rich-grid-item-margin) / 2)) / 6 * 14) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -125,7 +125,7 @@
     }
     
     @media (min-width: 2664px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(12.5% - ((var(--ytd-rich-grid-item-margin) / 2)) / 7 * 16) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -133,7 +133,7 @@
     }
     
     @media (min-width: 2912px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(11.111111% - ((var(--ytd-rich-grid-item-margin) / 2)) / 8 * 18) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
@@ -141,7 +141,7 @@
     }
     
     @media (min-width: 3160px) {
-      ytd-rich-item-renderer[rendered-from-rich-grid] {
+      ytd-rich-item-renderer[class*='ytdRichItemRendererHost'] {
         width: calc(10% - ((var(--ytd-rich-grid-item-margin) / 2)) / 9 * 20) !important;
         margin-left: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
         margin-right: calc(var(--ytd-rich-grid-item-margin) / 2) !important;
