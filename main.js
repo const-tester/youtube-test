@@ -689,7 +689,8 @@
   function initCheckboxToggle(id, styleId, css) {
     const cb = document.getElementById(id);
     if (!cb) return;
-    let isChecked = localStorage.getItem('zenified-' + id) === 'true';
+    // All settings enabled by default
+    let isChecked = localStorage.getItem('zenified-' + id) !== 'false';
 
     const apply = () => {
       localStorage.setItem('zenified-' + id, isChecked);
