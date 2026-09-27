@@ -62,9 +62,9 @@
     tp-yt-iron-overlay-backdrop,
     #masthead-ad,
     #offer-module,
-    /*TODO: CORREGIR LA SIGUIENTE LINEA*/
-    /*ytd-item-section-renderer:has(ytd-ad-slot-renderer),*/
-    tp-yt-paper-dialog:has(yt-mealbar-promo-renderer) {
+    tp-yt-paper-dialog:has(yt-mealbar-promo-renderer),
+    /* "Pásate a Youtube Premium" on video */
+    #secondary #contents yt-lockup-view-model:has(a[href*='/premium']) {
       display: none !important;
     }
   `;
